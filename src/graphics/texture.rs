@@ -34,7 +34,7 @@ impl Draw for Texture {
         graphics::draw(
             ctx,
             self.as_ref(),
-            DrawParam::new().dest(center_at.on_screen()).scale(scale_vector),
+            DrawParam::new().dest(center_at.on_screen()).scale(scale_vector).offset([0.5, 0.5]),
         )
     }
 }
