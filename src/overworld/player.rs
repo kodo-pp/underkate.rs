@@ -1,9 +1,9 @@
 use super::move_trait::{HasMoveContext, MoveContext};
-use crate::geometry::{OnScreen, ScreenPoint};
+use crate::geometry::ScreenPoint;
 use crate::graphics::texture::Texture;
 use crate::graphics::Draw;
 use crate::resources;
-use ggez::graphics::{self, DrawParam, Image};
+use ggez::graphics::Image;
 use ggez::{Context, GameResult};
 
 pub struct Player {
@@ -39,10 +39,6 @@ impl HasMoveContext for Player {}
 
 impl Draw for Player {
     fn draw(&mut self, ctx: &mut Context, center_at: ScreenPoint<f32>) -> GameResult {
-        graphics::draw(
-            ctx,
-            self.texture.as_ref(),
-            DrawParam::new().dest(center_at.on_screen()),
-        )
+        self.texture.draw(ctx, center_at)
     }
 }

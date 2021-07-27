@@ -1,5 +1,7 @@
-use crate::geometry::GenericDimensions;
-use ggez::graphics::Image;
+use super::Draw;
+use crate::geometry::{GenericDimensions, OnScreen, ScreenPoint};
+use ggez::graphics::{self, DrawParam, Image};
+use ggez::{Context, GameResult};
 
 pub struct Texture {
     image: Image,
@@ -28,5 +30,15 @@ impl Into<Image> for Texture {
 impl AsRef<Image> for Texture {
     fn as_ref(&self) -> &Image {
         &self.image
+    }
+}
+
+impl Draw for Texture {
+    fn draw(&mut self, ctx: &mut Context, center_at: ScreenPoint<f32>) -> GameResult {
+        graphics::draw(
+            ctx,
+            self.as_ref(),
+            DrawParam::new().dest(center_at.on_screen()),
+        )
     }
 }
