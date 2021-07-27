@@ -22,12 +22,6 @@ impl Texture {
     }
 }
 
-impl Into<Image> for Texture {
-    fn into(self) -> Image {
-        self.image
-    }
-}
-
 impl AsRef<Image> for Texture {
     fn as_ref(&self) -> &Image {
         &self.image
