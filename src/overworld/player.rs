@@ -3,7 +3,7 @@ use crate::geometry::ScreenPoint;
 use crate::graphics::texture::Texture;
 use crate::graphics::Draw;
 use crate::resources;
-use ggez::graphics::Image;
+use ggez::graphics::{FilterMode, Image};
 use ggez::{Context, GameResult};
 
 pub struct Player {
@@ -13,9 +13,11 @@ pub struct Player {
 
 impl Player {
     pub fn new(ctx: &mut Context, move_context: MoveContext) -> Self {
-        let texture = Image::from_bytes(ctx, resources::file("textures/player/player.png"))
-            .expect("Unable to load player texture")
-            .into();
+        let mut image = Image::from_bytes(ctx, resources::file("textures/player/player.png"))
+            .expect("Unable to load player texture");
+        image.set_filter(FilterMode::Nearest);
+
+        let texture = Texture::new_static(image, 4.0);
         Self {
             texture,
             move_context,

@@ -5,6 +5,7 @@ use ggez::{Context, GameResult};
 
 pub struct Texture {
     image: Image,
+    scale_factor: f32,
 }
 
 impl Texture {
@@ -15,9 +16,9 @@ impl Texture {
     }
 }
 
-impl From<Image> for Texture {
-    fn from(image: Image) -> Texture {
-        Texture { image }
+impl Texture {
+    pub fn new_static(image: Image, scale_factor: f32) -> Texture {
+        Texture { image, scale_factor }
     }
 }
 
@@ -35,10 +36,11 @@ impl AsRef<Image> for Texture {
 
 impl Draw for Texture {
     fn draw(&mut self, ctx: &mut Context, center_at: ScreenPoint<f32>) -> GameResult {
+        let scale_vector = [self.scale_factor; 2];
         graphics::draw(
             ctx,
             self.as_ref(),
-            DrawParam::new().dest(center_at.on_screen()),
+            DrawParam::new().dest(center_at.on_screen()).scale(scale_vector),
         )
     }
 }
