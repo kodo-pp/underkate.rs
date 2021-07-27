@@ -1,5 +1,5 @@
-use ggez::{Context, GameResult};
 use crate::ui_event::UiEvent;
+use ggez::{Context, GameResult};
 
 pub trait Screen {
     fn draw(&mut self, ctx: &mut Context) -> GameResult;

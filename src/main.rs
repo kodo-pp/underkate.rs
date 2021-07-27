@@ -1,8 +1,10 @@
 mod app;
+mod geometry;
 mod graphics;
+mod overworld;
+mod resources;
 mod screen;
 mod ui_event;
-mod overworld;
 
 fn main() {
     match app::run() {

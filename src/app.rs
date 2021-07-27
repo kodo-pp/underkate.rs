@@ -13,9 +13,9 @@ struct Underkate {
 }
 
 impl Underkate {
-    pub fn new() -> Self {
+    pub fn new(ctx: &mut Context) -> Self {
         Underkate {
-            screen: Box::new(OverworldScreen),
+            screen: Box::new(OverworldScreen::new(ctx)),
         }
     }
 }
@@ -42,8 +42,10 @@ impl EventHandler<GameError> for Underkate {
 }
 
 pub fn run() -> GameResult {
-    let (ctx, event_loop) = ContextBuilder::new("Underkate", "kodopp")
+    let (mut ctx, event_loop) = ContextBuilder::new("Underkate", "kodopp")
         .window_setup(WindowSetup::default().title("Underkate"))
         .build()?;
-    event::run(ctx, event_loop, Underkate::new());
+
+    let underkate = Underkate::new(&mut ctx);
+    event::run(ctx, event_loop, underkate);
 }
