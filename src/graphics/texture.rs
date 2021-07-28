@@ -32,7 +32,7 @@ impl AsRef<Image> for Texture {
 }
 
 impl Draw for Texture {
-    fn draw(&mut self, ctx: &mut Context, center_at: ScreenPoint<f32>) -> GameResult {
+    fn draw(&self, ctx: &mut Context, center_at: ScreenPoint<f32>) -> GameResult {
         let scale_vector = [self.scale_factor; 2];
         graphics::draw(
             ctx,

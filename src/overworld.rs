@@ -4,3 +4,4 @@ pub mod multiwalk;
 pub mod player;
 pub mod screen;
 pub mod walk;
+pub mod direction_textured;
