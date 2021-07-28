@@ -36,15 +36,19 @@ impl OverworldScreen {
         match key {
             KeyCode::Up => {
                 self.player.start_walking_forward(WALK_VELOCITY_ABS);
+                self.player.set_direction(Direction::Forward);
             }
             KeyCode::Down => {
                 self.player.start_walking_backward(WALK_VELOCITY_ABS);
+                self.player.set_direction(Direction::Backward);
             }
             KeyCode::Left => {
                 self.player.start_walking_left(WALK_VELOCITY_ABS);
+                self.player.set_direction(Direction::Left);
             }
             KeyCode::Right => {
                 self.player.start_walking_right(WALK_VELOCITY_ABS);
+                self.player.set_direction(Direction::Right);
             }
             _ => (),
         }
