@@ -11,15 +11,6 @@ pub struct MultiWalkState {
 }
 
 impl MultiWalkState {
-    fn new() -> Self {
-        Self {
-            forward_velocity: None,
-            backward_velocity: None,
-            left_velocity: None,
-            right_velocity: None,
-        }
-    }
-
     fn resulting_velocity(&self) -> OverworldVector<f32> {
         // TODO: use std::array::IntoIter when it is stabilized.
         [
