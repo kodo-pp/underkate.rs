@@ -1,4 +1,4 @@
-use super::move_trait::Move;
+use super::move_trait::{Move, Position};
 use crate::geometry::OverworldVector;
 use std::time::Duration;
 
@@ -31,13 +31,12 @@ pub trait Walk: Move {
         self.set_walk_state(WalkState::Still);
     }
 
-    fn update_position(&mut self, time_slice: Duration) {
-        match self.walk_state() {
-            WalkState::Still => (),
-            WalkState::Walking(WalkInfo { velocity, .. }) => {
-                let position_change = velocity * time_slice.as_secs_f32();
-                self.set_position(self.position() + position_change);
-            }
-        }
+    fn get_updated_position(&mut self, time_slice: Duration) -> Position {
+        let position_change = match self.walk_state() {
+            WalkState::Still => OverworldVector::zero(),
+            WalkState::Walking(WalkInfo { velocity, .. }) => velocity * time_slice.as_secs_f32(),
+        };
+
+        self.position() + position_change
     }
 }

@@ -1,7 +1,9 @@
 use super::direction_textured::DirectionTextured;
+use super::hitbox::CenteredHitbox;
 use super::move_trait::{Direction, HasMoveContext, MoveContext};
 use super::multiwalk::{MultiWalk, MultiWalkState};
 use super::walk::{Walk, WalkState};
+use crate::geometry::OverworldDimensions;
 use crate::graphics::texture::Texture;
 use crate::resources;
 use ggez::Context;
@@ -74,5 +76,14 @@ impl MultiWalk for Player {
 
     fn set_multi_walk_state(&mut self, multi_walk_state: MultiWalkState) {
         self.multi_walk_state = multi_walk_state
+    }
+}
+
+// TODO: take from config.
+const PLAYER_DIMENSIONS: OverworldDimensions<f32> = OverworldDimensions::new(56.0, 72.0);
+
+impl CenteredHitbox for Player {
+    fn hitbox_dimensions(&self) -> OverworldDimensions<f32> {
+        PLAYER_DIMENSIONS
     }
 }

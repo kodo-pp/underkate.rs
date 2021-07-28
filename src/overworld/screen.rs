@@ -1,8 +1,11 @@
+use super::collide::Collide;
 use super::geometry::TranslationContext;
 use super::move_trait::{Direction, Move, MoveContext};
 use super::multiwalk::MultiWalk;
+use super::passability_checker::PassabilityChecker;
 use super::player::Player;
 use super::walk::Walk;
+use crate::geometry::OverworldRect;
 use crate::graphics::Draw;
 use crate::screen::Screen;
 use crate::ui_event::UiEvent;
@@ -98,6 +101,14 @@ impl OverworldScreen {
 
         self.player.set_direction(direction);
     }
+
+    fn passability_checker(&self) -> PassabilityChecker {
+        PassabilityChecker::new(self.map_rect())
+    }
+
+    fn map_rect(&self) -> OverworldRect<f32> {
+        OverworldRect::from_size([800.0, 600.0].into())
+    }
 }
 
 impl Screen for OverworldScreen {
@@ -110,7 +121,15 @@ impl Screen for OverworldScreen {
 
     fn update(&mut self, ctx: &mut Context) -> GameResult {
         let time_slice = ggez::timer::delta(ctx);
-        self.player.update_position(time_slice);
+
+        let assumed_new_player_position = self.player.get_updated_position(time_slice);
+        if self
+            .player
+            .can_move_to(assumed_new_player_position, &self.passability_checker())
+        {
+            self.player.set_position(assumed_new_player_position)
+        }
+
         Ok(())
     }
 
