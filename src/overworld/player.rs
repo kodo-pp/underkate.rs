@@ -1,10 +1,10 @@
-use super::move_trait::{HasMoveContext, MoveContext, Direction };
+use super::direction_textured::DirectionTextured;
+use super::move_trait::{Direction, HasMoveContext, MoveContext};
 use super::multiwalk::{MultiWalk, MultiWalkState};
 use super::walk::{Walk, WalkState};
 use crate::graphics::texture::Texture;
 use crate::resources;
 use ggez::Context;
-use super::direction_textured::DirectionTextured;
 
 const WALK_VELOCITY_ABS: f32 = 200.0;
 

@@ -13,7 +13,13 @@ pub struct MultiWalkState {
 
 impl MultiWalkState {
     pub fn new(velocity_abs: f32) -> Self {
-        Self { velocity_abs, walking_forward: false, walking_backward: false, walking_left: false, walking_right: false }
+        Self {
+            velocity_abs,
+            walking_forward: false,
+            walking_backward: false,
+            walking_left: false,
+            walking_right: false,
+        }
     }
     pub fn resulting_velocity(&self) -> OverworldVector<f32> {
         // TODO: use std::array::IntoIter when it is stabilized.
@@ -26,7 +32,9 @@ impl MultiWalkState {
         .iter()
         .copied()
         .map(|(enabled, x_coeff, y_coeff)| {
-            OverworldVector::new(x_coeff, y_coeff) * self.velocity_abs * if enabled { 1.0 } else { 0.0 }
+            OverworldVector::new(x_coeff, y_coeff)
+                * self.velocity_abs
+                * if enabled { 1.0 } else { 0.0 }
         })
         .sum()
     }

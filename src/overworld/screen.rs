@@ -81,11 +81,19 @@ impl OverworldScreen {
         }
 
         let [x, y]: [f32; 2] = multi_walk_state.resulting_velocity().into();
-        
+
         let direction = if x.abs() > y.abs() {
-            if x > 0.0 { Direction::Right } else { Direction::Left }
+            if x > 0.0 {
+                Direction::Right
+            } else {
+                Direction::Left
+            }
         } else {
-            if y > 0.0 { Direction::Backward } else { Direction::Forward }
+            if y > 0.0 {
+                Direction::Backward
+            } else {
+                Direction::Forward
+            }
         };
 
         self.player.set_direction(direction);
