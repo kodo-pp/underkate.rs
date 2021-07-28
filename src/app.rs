@@ -30,7 +30,11 @@ impl EventHandler<GameError> for Underkate {
         graphics::present(ctx)
     }
 
-    fn key_down_event(&mut self, ctx: &mut Context, key: KeyCode, mods: KeyMods, _repeat: bool) {
+    fn key_down_event(&mut self, ctx: &mut Context, key: KeyCode, mods: KeyMods, repeat: bool) {
+        if repeat {
+            return;
+        }
+
         let ui_event = UiEvent::KeyDown { key, mods };
         self.screen.handle_event(ctx, ui_event);
     }
