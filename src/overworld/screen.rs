@@ -85,7 +85,7 @@ impl OverworldScreen {
 
         let [x, y]: [f32; 2] = multi_walk_state.resulting_velocity().into();
 
-        let direction = if x.abs() > y.abs() {
+        let direction = if x.abs() >= y.abs() {
             if x > 0.0 {
                 Direction::Right
             } else {
