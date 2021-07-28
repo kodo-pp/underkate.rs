@@ -1,10 +1,13 @@
 use super::geometry::TranslationContext;
 use super::move_trait::{Direction, Move, MoveContext};
+use super::multiwalk::MultiWalk;
 use super::player::Player;
+use super::walk::Walk;
 use crate::graphics::Draw;
 use crate::screen::Screen;
 use crate::ui_event::UiEvent;
 use ggez::graphics::{self, Color};
+use ggez::input::keyboard::KeyCode;
 use ggez::{Context, GameResult};
 
 pub struct OverworldScreen {
@@ -26,6 +29,44 @@ impl OverworldScreen {
     fn translation_context(&self) -> TranslationContext {
         TranslationContext
     }
+
+    fn handle_key_down(&mut self, key: KeyCode) {
+        const WALK_VELOCITY_ABS: f32 = 100.0;
+
+        match key {
+            KeyCode::Up => {
+                self.player.start_walking_forward(WALK_VELOCITY_ABS);
+            }
+            KeyCode::Down => {
+                self.player.start_walking_backward(WALK_VELOCITY_ABS);
+            }
+            KeyCode::Left => {
+                self.player.start_walking_left(WALK_VELOCITY_ABS);
+            }
+            KeyCode::Right => {
+                self.player.start_walking_right(WALK_VELOCITY_ABS);
+            }
+            _ => (),
+        }
+    }
+
+    fn handle_key_up(&mut self, key: KeyCode) {
+        match key {
+            KeyCode::Up => {
+                self.player.stop_walking_forward();
+            }
+            KeyCode::Down => {
+                self.player.stop_walking_backward();
+            }
+            KeyCode::Left => {
+                self.player.stop_walking_left();
+            }
+            KeyCode::Right => {
+                self.player.stop_walking_right();
+            }
+            _ => (),
+        }
+    }
 }
 
 impl Screen for OverworldScreen {
@@ -36,11 +77,21 @@ impl Screen for OverworldScreen {
         Ok(())
     }
 
-    fn update(&mut self, _ctx: &mut Context) -> GameResult {
+    fn update(&mut self, ctx: &mut Context) -> GameResult {
+        let time_slice = ggez::timer::delta(ctx);
+        self.player.update_position(time_slice);
         Ok(())
     }
 
     fn handle_event(&mut self, _ctx: &mut Context, event: UiEvent) {
+        match event {
+            UiEvent::KeyDown { key, .. } => {
+                self.handle_key_down(key);
+            }
+            UiEvent::KeyUp { key, .. } => {
+                self.handle_key_up(key);
+            }
+        }
         eprintln!("Overworld: UI Event: {:?}", event);
     }
 }
