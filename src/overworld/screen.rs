@@ -123,11 +123,12 @@ impl Screen for OverworldScreen {
         let time_slice = ggez::timer::delta(ctx);
 
         let assumed_new_player_position = self.player.get_updated_position(time_slice);
-        if self
-            .player
-            .can_move_to(assumed_new_player_position, &self.passability_checker())
-        {
-            self.player.set_position(assumed_new_player_position)
+        if let Some(new_player_position) = self.player.find_passable_position(
+            self.player.position(),
+            assumed_new_player_position,
+            &self.passability_checker(),
+        ) {
+            self.player.set_position(new_player_position)
         }
 
         Ok(())
