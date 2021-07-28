@@ -9,6 +9,7 @@ pub mod unit {
 
 macro_rules! make_typedef {
     ($euclid_name:ident => $underkate_name:ident for $unit:ty) => {
+        #[allow(dead_code)]
         pub type $underkate_name<T> = $euclid_name<T, $unit>;
     };
 }
