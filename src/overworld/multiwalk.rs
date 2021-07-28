@@ -2,56 +2,55 @@ use super::walk::{Walk, WalkInfo};
 use crate::geometry::OverworldVector;
 use paste::paste;
 
-#[derive(Debug, Copy, Clone, Default)]
+#[derive(Debug, Copy, Clone)]
 pub struct MultiWalkState {
-    forward_velocity: Option<f32>,
-    backward_velocity: Option<f32>,
-    left_velocity: Option<f32>,
-    right_velocity: Option<f32>,
+    velocity_abs: f32,
+    walking_forward: bool,
+    walking_backward: bool,
+    walking_left: bool,
+    walking_right: bool,
 }
 
 impl MultiWalkState {
-    fn resulting_velocity(&self) -> OverworldVector<f32> {
+    pub fn new(velocity_abs: f32) -> Self {
+        Self { velocity_abs, walking_forward: false, walking_backward: false, walking_left: false, walking_right: false }
+    }
+    pub fn resulting_velocity(&self) -> OverworldVector<f32> {
         // TODO: use std::array::IntoIter when it is stabilized.
         [
-            (self.forward_velocity, 0.0, -1.0),
-            (self.backward_velocity, 0.0, 1.0),
-            (self.left_velocity, -1.0, 0.0),
-            (self.right_velocity, 1.0, 0.0),
+            (self.walking_forward, 0.0, -1.0),
+            (self.walking_backward, 0.0, 1.0),
+            (self.walking_left, -1.0, 0.0),
+            (self.walking_right, 1.0, 0.0),
         ]
         .iter()
         .copied()
-        .map(|(velocity_abs, x_coeff, y_coeff)| {
-            OverworldVector::new(x_coeff, y_coeff) * velocity_abs.unwrap_or(0.0)
+        .map(|(enabled, x_coeff, y_coeff)| {
+            OverworldVector::new(x_coeff, y_coeff) * self.velocity_abs * if enabled { 1.0 } else { 0.0 }
         })
         .sum()
     }
 
-    fn is_still(&self) -> bool {
-        [
-            self.forward_velocity,
-            self.backward_velocity,
-            self.left_velocity,
-            self.right_velocity,
-        ]
-        .iter()
-        .all(Option::is_none)
+    pub fn is_still(&self) -> bool {
+        let horizontal_still = self.walking_forward == self.walking_backward;
+        let vertical_still = self.walking_left == self.walking_right;
+        horizontal_still && vertical_still
     }
 }
 
 macro_rules! gen_methods_for_direction {
     ($direction:ident) => {
         paste! {
-            fn [< start_walking_ $direction >](&mut self, velocity: f32) {
+            fn [< start_walking_ $direction >](&mut self) {
                 let mut state = self.multi_walk_state();
-                state.[< $direction _velocity >] = Some(velocity);
+                state.[< walking_ $direction >] = true;
                 self.set_multi_walk_state(state);
                 self.update_walk_state();
             }
 
             fn [< stop_walking_ $direction >](&mut self) {
                 let mut state = self.multi_walk_state();
-                state.[< $direction _velocity >] = None;
+                state.[< walking_ $direction >] = false;
                 self.set_multi_walk_state(state);
                 self.update_walk_state();
             }

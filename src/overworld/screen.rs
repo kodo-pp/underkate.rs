@@ -31,24 +31,22 @@ impl OverworldScreen {
     }
 
     fn handle_key_down(&mut self, key: KeyCode) {
-        const WALK_VELOCITY_ABS: f32 = 100.0;
-
         match key {
             KeyCode::Up => {
-                self.player.start_walking_forward(WALK_VELOCITY_ABS);
-                self.player.set_direction(Direction::Forward);
+                self.player.start_walking_forward();
+                self.update_player_direction();
             }
             KeyCode::Down => {
-                self.player.start_walking_backward(WALK_VELOCITY_ABS);
-                self.player.set_direction(Direction::Backward);
+                self.player.start_walking_backward();
+                self.update_player_direction();
             }
             KeyCode::Left => {
-                self.player.start_walking_left(WALK_VELOCITY_ABS);
-                self.player.set_direction(Direction::Left);
+                self.player.start_walking_left();
+                self.update_player_direction();
             }
             KeyCode::Right => {
-                self.player.start_walking_right(WALK_VELOCITY_ABS);
-                self.player.set_direction(Direction::Right);
+                self.player.start_walking_right();
+                self.update_player_direction();
             }
             _ => (),
         }
@@ -58,18 +56,39 @@ impl OverworldScreen {
         match key {
             KeyCode::Up => {
                 self.player.stop_walking_forward();
+                self.update_player_direction();
             }
             KeyCode::Down => {
                 self.player.stop_walking_backward();
+                self.update_player_direction();
             }
             KeyCode::Left => {
                 self.player.stop_walking_left();
+                self.update_player_direction();
             }
             KeyCode::Right => {
                 self.player.stop_walking_right();
+                self.update_player_direction();
             }
             _ => (),
         }
+    }
+
+    fn update_player_direction(&mut self) {
+        let multi_walk_state = self.player.multi_walk_state();
+        if multi_walk_state.is_still() {
+            return;
+        }
+
+        let [x, y]: [f32; 2] = multi_walk_state.resulting_velocity().into();
+        
+        let direction = if x.abs() > y.abs() {
+            if x > 0.0 { Direction::Right } else { Direction::Left }
+        } else {
+            if y > 0.0 { Direction::Backward } else { Direction::Forward }
+        };
+
+        self.player.set_direction(direction);
     }
 }
 

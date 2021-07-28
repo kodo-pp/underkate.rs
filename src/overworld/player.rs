@@ -6,6 +6,8 @@ use crate::resources;
 use ggez::Context;
 use super::direction_textured::DirectionTextured;
 
+const WALK_VELOCITY_ABS: f32 = 200.0;
+
 pub struct Player {
     front_texture: Texture,
     back_texture: Texture,
@@ -25,7 +27,7 @@ impl Player {
             rightward_texture: resources::static_texture(ctx, "player/rightward.png", 4.0),
             move_context,
             walk_state: WalkState::default(),
-            multi_walk_state: MultiWalkState::default(),
+            multi_walk_state: MultiWalkState::new(WALK_VELOCITY_ABS),
         }
     }
 }
