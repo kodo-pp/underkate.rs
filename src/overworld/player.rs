@@ -7,14 +7,33 @@ use crate::geometry::OverworldRect;
 use crate::graphics::texture::Texture;
 use crate::resources;
 use ggez::Context;
+use std::time::Duration;
 
 const WALK_VELOCITY_ABS: f32 = 200.0;
 
+struct AnimatableTexture {
+    pub static_version: Texture,
+    pub animated_version: Texture,
+}
+
+impl AnimatableTexture {
+    pub fn new(static_version: Texture, animated_version: Texture) -> Self {
+        Self { static_version, animated_version }
+    }
+
+    pub fn get(&self, is_animated: bool) -> &Texture {
+        match is_animated {
+            true => &self.animated_version,
+            false => &self.static_version
+        }
+    }
+}
+
 pub struct Player {
-    front_texture: Texture,
-    back_texture: Texture,
-    leftward_texture: Texture,
-    rightward_texture: Texture,
+    front_texture: AnimatableTexture,
+    back_texture: AnimatableTexture,
+    leftward_texture: AnimatableTexture,
+    rightward_texture: AnimatableTexture,
     move_context: MoveContext,
     walk_state: WalkState,
     multi_walk_state: MultiWalkState,
@@ -23,14 +42,82 @@ pub struct Player {
 impl Player {
     pub fn new(ctx: &mut Context, move_context: MoveContext) -> Self {
         Self {
-            front_texture: resources::static_texture(ctx, "player/front.png", 4.0),
-            back_texture: resources::static_texture(ctx, "player/back.png", 4.0),
-            leftward_texture: resources::static_texture(ctx, "player/leftward.png", 4.0),
-            rightward_texture: resources::static_texture(ctx, "player/rightward.png", 4.0),
+            front_texture: AnimatableTexture::new(
+                resources::static_texture(ctx, "player/front/0.png", 4.0),
+                resources::animated_texture(
+                    ctx,
+                    &[
+                        "player/front/0.png",
+                        "player/front/1.png",
+                        "player/front/2.png",
+                        "player/front/3.png",
+                        "player/front/4.png",
+                        "player/front/5.png",
+                        "player/front/6.png",
+                        "player/front/7.png",
+                    ],
+                    Duration::from_secs_f64(0.1),
+                    4.0
+                ),
+            ),
+            back_texture: AnimatableTexture::new(
+                resources::static_texture(ctx, "player/back/0.png", 4.0),
+                resources::animated_texture(
+                    ctx,
+                    &[
+                        "player/back/0.png",
+                        "player/back/1.png",
+                        "player/back/2.png",
+                        "player/back/3.png",
+                        "player/back/4.png",
+                        "player/back/5.png",
+                        "player/back/6.png",
+                        "player/back/7.png",
+                    ],
+                    Duration::from_secs_f64(0.1),
+                    4.0
+                ),
+            ),
+            leftward_texture: AnimatableTexture::new(
+                resources::static_texture(ctx, "player/leftward/0.png", 4.0),
+                resources::animated_texture(
+                    ctx,
+                    &[
+                        "player/leftward/0.png",
+                        "player/leftward/1.png",
+                        "player/leftward/2.png",
+                        "player/leftward/3.png",
+                        "player/leftward/4.png",
+                        "player/leftward/5.png",
+                    ],
+                    Duration::from_secs_f64(0.1),
+                    4.0
+                ),
+            ),
+            rightward_texture: AnimatableTexture::new(
+                resources::static_texture(ctx, "player/rightward/0.png", 4.0),
+                resources::animated_texture(
+                    ctx,
+                    &[
+                        "player/rightward/0.png",
+                        "player/rightward/1.png",
+                        "player/rightward/2.png",
+                        "player/rightward/3.png",
+                        "player/rightward/4.png",
+                        "player/rightward/5.png",
+                    ],
+                    Duration::from_secs_f64(0.1),
+                    4.0
+                ),
+            ),
             move_context,
             walk_state: WalkState::default(),
             multi_walk_state: MultiWalkState::new(WALK_VELOCITY_ABS),
         }
+    }
+
+    fn should_animate(&self) -> bool {
+        !self.multi_walk_state.is_still()
     }
 }
 
@@ -51,10 +138,10 @@ impl HasMoveContext for Player {}
 impl DirectionTextured for Player {
     fn texture_for_direction(&self, direction: Direction) -> &Texture {
         match direction {
-            Direction::Backward => &self.front_texture,
-            Direction::Forward => &self.back_texture,
-            Direction::Left => &self.leftward_texture,
-            Direction::Right => &self.rightward_texture,
+            Direction::Backward => &self.front_texture.get(self.should_animate()),
+            Direction::Forward => &self.back_texture.get(self.should_animate()),
+            Direction::Left => &self.leftward_texture.get(self.should_animate()),
+            Direction::Right => &self.rightward_texture.get(self.should_animate()),
         }
     }
 }
