@@ -4,7 +4,6 @@ use ggez::mint;
 pub mod unit {
     pub struct Overworld;
     pub struct Screen;
-    pub struct Generic;
 }
 
 macro_rules! make_typedef {
@@ -14,27 +13,22 @@ macro_rules! make_typedef {
     };
 }
 
-use unit::{Generic, Overworld, Screen};
+use unit::{Overworld, Screen};
 
 make_typedef!(Point2D => OverworldPoint for Overworld);
 make_typedef!(Point2D => ScreenPoint for Screen);
-make_typedef!(Point2D => GenericPoint for Generic);
 
 make_typedef!(Size2D => OverworldDimensions for Overworld);
 make_typedef!(Size2D => ScreenDimensions for Screen);
-make_typedef!(Size2D => GenericDimensions for Generic);
 
 make_typedef!(Box2D => OverworldRect for Overworld);
 make_typedef!(Box2D => ScreenRect for Screen);
-make_typedef!(Box2D => GenericRect for Generic);
 
 make_typedef!(Length => OverworldLength for Overworld);
 make_typedef!(Length => ScreenLength for Screen);
-make_typedef!(Length => GenericLength for Generic);
 
 make_typedef!(Vector2D => OverworldVector for Overworld);
 make_typedef!(Vector2D => ScreenVector for Screen);
-make_typedef!(Vector2D => GenericVector for Generic);
 
 pub trait OnScreen<Container> {
     fn on_screen(&self) -> Container;
