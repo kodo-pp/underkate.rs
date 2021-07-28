@@ -1,19 +1,11 @@
 use super::Draw;
-use crate::geometry::{GenericDimensions, OnScreen, ScreenPoint};
+use crate::geometry::{OnScreen, ScreenPoint};
 use ggez::graphics::{self, DrawParam, Image};
 use ggez::{Context, GameResult};
 
 pub struct Texture {
     image: Image,
     scale_factor: f32,
-}
-
-impl Texture {
-    fn dimensions(&self) -> GenericDimensions<u32> {
-        let width = self.image.width() as u32;
-        let height = self.image.width() as u32;
-        [width, height].into()
-    }
 }
 
 impl Texture {
