@@ -49,15 +49,19 @@ impl Texture {
     }
 
     pub fn static_draw(&self, ctx: &mut Context, center_at: ScreenPoint<f32>) -> GameResult {
-        self.generic_draw(ctx, center_at, &DrawParams { inhibit_animation: true })
+        self.generic_draw(
+            ctx,
+            center_at,
+            &DrawParams {
+                inhibit_animation: true,
+            },
+        )
     }
 
     fn image_for_now(&self, params: &DrawParams) -> &Image {
         match &self.kind {
             TextureKind::Static(ref image) => &image,
-            TextureKind::Animated { frames, .. } if params.inhibit_animation => {
-                &frames[0]
-            }
+            TextureKind::Animated { frames, .. } if params.inhibit_animation => &frames[0],
             TextureKind::Animated {
                 frames,
                 frame_interval,
@@ -73,7 +77,12 @@ impl Texture {
         }
     }
 
-    fn generic_draw(&self, ctx: &mut Context, center_at: ScreenPoint<f32>, params: &DrawParams) -> GameResult {
+    fn generic_draw(
+        &self,
+        ctx: &mut Context,
+        center_at: ScreenPoint<f32>,
+        params: &DrawParams,
+    ) -> GameResult {
         let scale_vector = [self.scale_factor; 2];
         graphics::draw(
             ctx,
@@ -88,6 +97,12 @@ impl Texture {
 
 impl Draw for Texture {
     fn draw(&self, ctx: &mut Context, center_at: ScreenPoint<f32>) -> GameResult {
-        self.generic_draw(ctx, center_at, &DrawParams { inhibit_animation: false })
+        self.generic_draw(
+            ctx,
+            center_at,
+            &DrawParams {
+                inhibit_animation: false,
+            },
+        )
     }
 }

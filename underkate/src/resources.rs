@@ -1,9 +1,9 @@
 use crate::graphics::texture::Texture;
-use underkate_tools::load_texture;
-use std::fmt::{self, Display, Formatter};
 use ggez::Context;
-use std::error::Error;
 use std::collections::HashMap;
+use std::error::Error;
+use std::fmt::{self, Display, Formatter};
+use underkate_tools::load_texture;
 
 #[derive(Debug, Copy, Clone)]
 pub struct ResourceDoesNotExist<'a> {
@@ -33,7 +33,9 @@ pub struct GlobalResourceStorage {
 
 impl GlobalResourceStorage {
     pub fn new() -> Self {
-        Self { textures: HashMap::new() }
+        Self {
+            textures: HashMap::new(),
+        }
     }
 }
 
@@ -45,7 +47,7 @@ impl ResourceStorage<Texture> for GlobalResourceStorage {
     fn put(&mut self, name: String, resource: Texture) {
         match self.textures.insert(name, resource) {
             Some(_) => panic!("Duplicate resource name"),
-            None => ()
+            None => (),
         }
     }
 }
@@ -54,7 +56,7 @@ macro_rules! use_texture {
     ($path:tt => $storage:expr, $ctx:expr) => {
         let ctx: &mut Context = $ctx;
         $storage.put(String::from($path), load_texture!($path));
-    }
+    };
 }
 
 pub fn make_global_storage(ctx: &mut Context) -> GlobalResourceStorage {

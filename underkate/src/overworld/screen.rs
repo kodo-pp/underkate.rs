@@ -7,12 +7,12 @@ use super::player::Player;
 use super::walk::Walk;
 use crate::geometry::OverworldRect;
 use crate::graphics::Draw;
+use crate::resources::GlobalResourceStorage;
 use crate::screen::Screen;
 use crate::ui_event::UiEvent;
 use ggez::graphics::{self, Color};
 use ggez::input::keyboard::KeyCode;
 use ggez::{Context, GameResult};
-use crate::resources::GlobalResourceStorage;
 
 pub struct OverworldScreen {
     player: Player,

@@ -47,8 +47,8 @@ pub fn load_texture(tokens: TokenStream) -> TokenStream {
     let dir_full_path = format!("{}/textures/{}", ASSETS_DIR, path_str);
     let manifest_full_path = format!("{}/texture.toml", dir_full_path);
 
-    let manifest: Manifest = toml::from_str(&read_file(&manifest_full_path))
-        .expect("Failed to parse manifest file");
+    let manifest: Manifest =
+        toml::from_str(&read_file(&manifest_full_path)).expect("Failed to parse manifest file");
 
     match manifest {
         Manifest::Static { image_path, scale } => {

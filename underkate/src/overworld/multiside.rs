@@ -1,7 +1,7 @@
 use super::move_trait::Direction;
 use crate::geometry::ScreenPoint;
-use crate::graphics::Draw;
 use crate::graphics::texture::Texture;
+use crate::graphics::Draw;
 use ggez::{Context, GameResult};
 
 pub trait MoveAnimatedMultiside {

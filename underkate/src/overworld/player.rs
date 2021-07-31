@@ -1,11 +1,11 @@
-use super::multiside::MoveAnimatedMultiside;
 use super::hitbox::Hitbox;
 use super::move_trait::{Direction, HasMoveContext, MoveContext};
+use super::multiside::MoveAnimatedMultiside;
 use super::multiwalk::{MultiWalk, MultiWalkState};
 use super::walk::{Walk, WalkState};
-use crate::resources::{ResourceStorage, GlobalResourceStorage};
 use crate::geometry::OverworldRect;
 use crate::graphics::texture::Texture;
+use crate::resources::{GlobalResourceStorage, ResourceStorage};
 
 const WALK_VELOCITY_ABS: f32 = 200.0;
 

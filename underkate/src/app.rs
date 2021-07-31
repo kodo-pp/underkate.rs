@@ -1,4 +1,5 @@
 use crate::overworld::screen::OverworldScreen;
+use crate::resources::{self, GlobalResourceStorage};
 use crate::screen::Screen;
 use crate::ui_event::UiEvent;
 use ggez::conf::WindowSetup;
@@ -7,7 +8,6 @@ use ggez::graphics;
 use ggez::input::keyboard::{KeyCode, KeyMods};
 use ggez::{Context, ContextBuilder, GameError, GameResult};
 use std::default::Default;
-use crate::resources::{self, GlobalResourceStorage};
 
 struct Underkate {
     screen: Box<dyn Screen>,

@@ -1,8 +1,8 @@
 pub mod collide;
-pub mod multiside;
 pub mod geometry;
 pub mod hitbox;
 pub mod move_trait;
+pub mod multiside;
 pub mod multiwalk;
 pub mod passability_checker;
 pub mod player;
