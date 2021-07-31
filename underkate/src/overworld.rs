@@ -8,3 +8,4 @@ pub mod passability_checker;
 pub mod player;
 pub mod screen;
 pub mod walk;
+pub mod room;
