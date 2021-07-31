@@ -54,11 +54,15 @@ pub fn load_texture(tokens: TokenStream) -> TokenStream {
         Manifest::Static { image_path, scale } => {
             quote! {
                 crate::graphics::texture::Texture::new_static(
-                    ::ggez::graphics::Image::from_bytes(
-                        ctx,
-                        include_bytes!(stringify!(#image_path)),
-                    ).expect("Failed to decode image from bytes"),
-                    #scale,
+                    {
+                        let mut image = ::ggez::graphics::Image::from_bytes(
+                            ctx,
+                            include_bytes!(#image_path),
+                        ).expect("Failed to decode image from bytes");
+                        image.set_filter(::ggez::graphics::FilterMode::Nearest);
+                        image
+                    },
+                    #scale, 
                 )
             }
         }
@@ -72,10 +76,14 @@ pub fn load_texture(tokens: TokenStream) -> TokenStream {
                 crate::graphics::texture::Texture::new_animated(
                     vec![
                         #(
-                            ::ggez::graphics::Image::from_bytes(
-                                ctx,
-                                include_bytes!(concat!(#dir_full_path, "/", #image_paths)),
-                            ).expect("Failed to decode image from bytes"),
+                            {
+                                let mut image = ::ggez::graphics::Image::from_bytes(
+                                    ctx,
+                                    include_bytes!(concat!(#dir_full_path, "/", #image_paths)),
+                                ).expect("Failed to decode image from bytes");
+                                image.set_filter(::ggez::graphics::FilterMode::Nearest);
+                                image
+                            },
                         )*
                     ],
                     ::std::time::Duration::from_secs_f64(#frame_interval_secs),
