@@ -12,20 +12,22 @@ use crate::ui_event::UiEvent;
 use ggez::graphics::{self, Color};
 use ggez::input::keyboard::KeyCode;
 use ggez::{Context, GameResult};
+use crate::resources::GlobalResourceStorage;
 
 pub struct OverworldScreen {
     player: Player,
 }
 
 impl OverworldScreen {
-    pub fn new(ctx: &mut Context) -> OverworldScreen {
+    pub fn new(global_resource_storage: &GlobalResourceStorage) -> OverworldScreen {
         let player = Player::new(
-            ctx,
+            &global_resource_storage,
             MoveContext {
                 position: [200.0, 200.0].into(),
                 direction: Direction::Backward,
             },
         );
+
         OverworldScreen { player }
     }
 

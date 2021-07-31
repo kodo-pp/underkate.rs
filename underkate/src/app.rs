@@ -7,15 +7,21 @@ use ggez::graphics;
 use ggez::input::keyboard::{KeyCode, KeyMods};
 use ggez::{Context, ContextBuilder, GameError, GameResult};
 use std::default::Default;
+use crate::resources::{self, GlobalResourceStorage};
 
 struct Underkate {
     screen: Box<dyn Screen>,
+    global_resource_storage: GlobalResourceStorage,
 }
 
 impl Underkate {
     pub fn new(ctx: &mut Context) -> Self {
+        let global_resource_storage = resources::make_global_storage(ctx);
+        let screen = Box::new(OverworldScreen::new(&global_resource_storage));
+
         Underkate {
-            screen: Box::new(OverworldScreen::new(ctx)),
+            screen,
+            global_resource_storage,
         }
     }
 }

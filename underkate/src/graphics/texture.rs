@@ -4,6 +4,7 @@ use ggez::graphics::{self, DrawParam, Image};
 use ggez::{Context, GameResult};
 use std::time::{Duration, Instant};
 
+#[derive(Debug, Clone)]
 enum TextureKind {
     Static(Image),
     Animated {
@@ -13,6 +14,12 @@ enum TextureKind {
     },
 }
 
+#[derive(Debug, Clone, Copy)]
+struct DrawParams {
+    inhibit_animation: bool,
+}
+
+#[derive(Debug, Clone)]
 pub struct Texture {
     kind: TextureKind,
     scale_factor: f32,
@@ -41,9 +48,16 @@ impl Texture {
         }
     }
 
-    fn image_for_now(&self) -> &Image {
+    pub fn static_draw(&self, ctx: &mut Context, center_at: ScreenPoint<f32>) -> GameResult {
+        self.generic_draw(ctx, center_at, &DrawParams { inhibit_animation: true })
+    }
+
+    fn image_for_now(&self, params: &DrawParams) -> &Image {
         match &self.kind {
             TextureKind::Static(ref image) => &image,
+            TextureKind::Animated { frames, .. } if params.inhibit_animation => {
+                &frames[0]
+            }
             TextureKind::Animated {
                 frames,
                 frame_interval,
@@ -58,18 +72,22 @@ impl Texture {
             }
         }
     }
-}
 
-impl Draw for Texture {
-    fn draw(&self, ctx: &mut Context, center_at: ScreenPoint<f32>) -> GameResult {
+    fn generic_draw(&self, ctx: &mut Context, center_at: ScreenPoint<f32>, params: &DrawParams) -> GameResult {
         let scale_vector = [self.scale_factor; 2];
         graphics::draw(
             ctx,
-            self.image_for_now(),
+            self.image_for_now(params),
             DrawParam::new()
                 .dest(center_at.on_screen())
                 .scale(scale_vector)
                 .offset([0.5, 0.5]),
         )
+    }
+}
+
+impl Draw for Texture {
+    fn draw(&self, ctx: &mut Context, center_at: ScreenPoint<f32>) -> GameResult {
+        self.generic_draw(ctx, center_at, &DrawParams { inhibit_animation: false })
     }
 }

@@ -1,0 +1,16 @@
+[package]
+name = "underkate_tools"
+version = "0.1.0"
+authors = ["Alexander Korzun <sahhash33@gmail.com>"]
+edition = "2018"
+
+[lib]
+proc-macro = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+syn = "1.0.74"
+serde = { version = "1.0.126", features = ["derive"] }
+toml = "0.5.8"
+quote = "1.0.9"

@@ -1,5 +1,5 @@
 pub mod collide;
-pub mod direction_textured;
+pub mod multiside;
 pub mod geometry;
 pub mod hitbox;
 pub mod move_trait;
