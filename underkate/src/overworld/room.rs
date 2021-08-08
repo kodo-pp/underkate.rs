@@ -1,38 +1,49 @@
 use super::collide::Collide;
 use super::geometry::TranslationContext;
-use super::move_trait::{Direction, Move, MoveContext};
+use super::move_trait::{Direction, Move, MoveContext, Position};
 use super::multiwalk::MultiWalk;
 use super::passability_checker::PassabilityChecker;
 use super::player::Player;
 use super::walk::Walk;
 use crate::geometry::OverworldRect;
+use crate::graphics::texture::Texture;
 use crate::graphics::Draw;
-use crate::resources::GlobalResourceStorage;
+use crate::resources::{GlobalResourceStorage, ResourceStorage};
 use crate::ui_event::UiEvent;
-use ggez::graphics::{self, Color};
 use ggez::input::keyboard::KeyCode;
 use ggez::{Context, GameResult};
 
+#[derive(Debug)]
+pub struct CreationParams {
+    pub background_path: String,
+    pub pass_map_path: String,
+    pub player_position: Position,
+    pub player_direction: Direction,
+}
+
 pub struct Room {
-    player: Player
+    background: Texture,
+    player: Player,
 }
 
 impl Room {
-    pub fn new(global_resource_storage: &GlobalResourceStorage) -> Room {
+    pub fn new(params: CreationParams, global_resource_storage: &GlobalResourceStorage) -> Room {
         let player = Player::new(
             &global_resource_storage,
             MoveContext {
-                position: [200.0, 200.0].into(),
-                direction: Direction::Backward,
+                position: params.player_position,
+                direction: params.player_direction,
             },
         );
 
-        Room { player }
+        Room {
+            background: global_resource_storage.get(&params.background_path).clone(),
+            player,
+        }
     }
 
     pub fn draw(&mut self, ctx: &mut Context) -> GameResult {
-        graphics::clear(ctx, Color::BLACK);
-
+        self.background.draw(ctx, self.background.dimensions().to_vector().to_point() * 0.5)?;
         draw_entity(ctx, &self.translation_context(), &mut self.player)?;
         Ok(())
     }

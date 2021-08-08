@@ -55,6 +55,8 @@ pub fn run() -> GameResult {
     let (mut ctx, event_loop) = ContextBuilder::new("Underkate", "kodopp")
         .window_setup(WindowSetup::default().title("Underkate"))
         .build()?;
+    
+    // TODO: loading screen.
 
     let underkate = Underkate::new(&mut ctx);
     event::run(ctx, event_loop, underkate);

@@ -1,5 +1,5 @@
 use super::Draw;
-use crate::geometry::{OnScreen, ScreenPoint};
+use crate::geometry::{OnScreen, ScreenDimensions, ScreenPoint};
 use ggez::graphics::{self, DrawParam, Image};
 use ggez::{Context, GameResult};
 use std::time::{Duration, Instant};
@@ -11,6 +11,7 @@ enum TextureKind {
         frames: Vec<Image>,
         frame_interval: Duration,
         start_instant: Instant,
+        cached_dimensions: ScreenDimensions<f32>,
     },
 }
 
@@ -23,6 +24,11 @@ struct DrawParams {
 pub struct Texture {
     kind: TextureKind,
     scale_factor: f32,
+}
+
+fn image_to_dimensions(image: &Image) -> [f32; 2] {
+    let rect = image.dimensions();
+    [rect.w, rect.h]
 }
 
 impl Texture {
@@ -38,11 +44,20 @@ impl Texture {
         frame_interval: Duration,
         scale_factor: f32,
     ) -> Texture {
+        let cached_dimensions = frames
+            .iter()
+            .map(image_to_dimensions)
+            .fold([0.0, 0.0], |[aw, ah], [bw, bh]| {
+                [f32::max(aw, bw), f32::max(ah, bh)]
+            })
+            .into();
+
         Texture {
             kind: TextureKind::Animated {
                 frames,
                 frame_interval,
                 start_instant: Instant::now(),
+                cached_dimensions,
             },
             scale_factor,
         }
@@ -58,6 +73,13 @@ impl Texture {
         )
     }
 
+    pub fn dimensions(&self) -> ScreenDimensions<f32> {
+        match &self.kind {
+            TextureKind::Static(image) => image_to_dimensions(image).into(),
+            TextureKind::Animated { cached_dimensions, .. } => *cached_dimensions,
+        }
+    }
+
     fn image_for_now(&self, params: &DrawParams) -> &Image {
         match &self.kind {
             TextureKind::Static(ref image) => &image,
@@ -66,6 +88,7 @@ impl Texture {
                 frames,
                 frame_interval,
                 start_instant,
+                ..
             } => {
                 let time_passed_since_start = start_instant.elapsed();
                 let frames_passed = (time_passed_since_start.as_secs_f64()

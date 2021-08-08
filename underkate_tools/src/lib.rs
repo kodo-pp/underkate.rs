@@ -57,7 +57,7 @@ pub fn load_texture(tokens: TokenStream) -> TokenStream {
                     {
                         let mut image = ::ggez::graphics::Image::from_bytes(
                             ctx,
-                            include_bytes!(#image_path),
+                            include_bytes!(concat!(#dir_full_path, "/", #image_path)),
                         ).expect("Failed to decode image from bytes");
                         image.set_filter(::ggez::graphics::FilterMode::Nearest);
                         image

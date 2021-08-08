@@ -65,5 +65,6 @@ pub fn make_global_storage(ctx: &mut Context) -> GlobalResourceStorage {
     use_texture!("overworld/player/back" => storage, ctx);
     use_texture!("overworld/player/leftward" => storage, ctx);
     use_texture!("overworld/player/rightward" => storage, ctx);
+    use_texture!("overworld/rooms/_stub/bg" => storage, ctx);
     storage
 }

@@ -1,9 +1,10 @@
+use super::room::{CreationParams, Room};
+use super::move_trait::Direction;
 use crate::resources::GlobalResourceStorage;
 use crate::screen::Screen;
 use crate::ui_event::UiEvent;
 use ggez::graphics::{self, Color};
 use ggez::{Context, GameResult};
-use super::room::Room;
 
 pub struct OverworldScreen {
     room: Room,
@@ -11,7 +12,16 @@ pub struct OverworldScreen {
 
 impl OverworldScreen {
     pub fn new(global_resource_storage: &GlobalResourceStorage) -> OverworldScreen {
-        OverworldScreen { room: Room::new(global_resource_storage) }
+        let room_creation_params = CreationParams {
+            background_path: String::from("overworld/rooms/_stub/bg"),
+            pass_map_path: String::new(),
+            player_direction: Direction::Forward,
+            player_position: [200.0, 200.0].into(),
+        };
+
+        OverworldScreen {
+            room: Room::new(room_creation_params, global_resource_storage),
+        }
     }
 }
 
