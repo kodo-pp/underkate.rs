@@ -5,7 +5,7 @@ use super::multiwalk::{MultiWalk, MultiWalkState};
 use super::walk::{Walk, WalkState};
 use crate::geometry::OverworldRect;
 use crate::graphics::texture::Texture;
-use crate::resources::{GlobalResourceStorage, ResourceStorage};
+use crate::resources::{GlobalResourceStorage, ResourceStorageCloneExt};
 
 const WALK_VELOCITY_ABS: f32 = 200.0;
 
@@ -22,10 +22,10 @@ pub struct Player {
 impl Player {
     pub fn new(resources: &GlobalResourceStorage, move_context: MoveContext) -> Self {
         Self {
-            front_texture: resources.get("overworld/player/front").clone(),
-            back_texture: resources.get("overworld/player/back").clone(),
-            leftward_texture: resources.get("overworld/player/leftward").clone(),
-            rightward_texture: resources.get("overworld/player/rightward").clone(),
+            front_texture: resources.get_cloned("overworld/player/front"),
+            back_texture: resources.get_cloned("overworld/player/back"),
+            leftward_texture: resources.get_cloned("overworld/player/leftward"),
+            rightward_texture: resources.get_cloned("overworld/player/rightward"),
             move_context,
             walk_state: WalkState::default(),
             multi_walk_state: MultiWalkState::new(WALK_VELOCITY_ABS),

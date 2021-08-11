@@ -8,17 +8,37 @@ use super::walk::Walk;
 use crate::geometry::OverworldRect;
 use crate::graphics::texture::Texture;
 use crate::graphics::Draw;
-use crate::resources::{GlobalResourceStorage, ResourceStorage};
+use crate::resources::{GlobalResourceStorage, ResourceStorageCloneExt};
 use crate::ui_event::UiEvent;
 use ggez::input::keyboard::KeyCode;
 use ggez::{Context, GameResult};
+use std::collections::HashMap;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
+pub struct PartialCreationParams {
+    pub background_path: String,
+    pub pass_map_path: String,
+    pub initial_player_states: HashMap<String, (Position, Direction)>,
+}
+
+#[derive(Debug, Clone)]
 pub struct CreationParams {
     pub background_path: String,
     pub pass_map_path: String,
     pub player_position: Position,
     pub player_direction: Direction,
+}
+
+impl CreationParams {
+    pub fn from_partial(partial: PartialCreationParams, prev_room_name: &str) -> Self {
+        let (position, direction) = partial.initial_player_states[prev_room_name];
+        CreationParams {
+            background_path: partial.background_path,
+            pass_map_path: partial.pass_map_path,
+            player_position: position,
+            player_direction: direction,
+        }
+    }
 }
 
 pub struct Room {
@@ -37,13 +57,16 @@ impl Room {
         );
 
         Room {
-            background: global_resource_storage.get(&params.background_path).clone(),
+            background: global_resource_storage.get_cloned(&params.background_path),
             player,
         }
     }
 
     pub fn draw(&mut self, ctx: &mut Context) -> GameResult {
-        self.background.draw(ctx, self.background.dimensions().to_vector().to_point() * 0.5)?;
+        self.background.draw(
+            ctx,
+            self.background.dimensions().to_vector().to_point() * 0.5,
+        )?;
         draw_entity(ctx, &self.translation_context(), &mut self.player)?;
         Ok(())
     }
