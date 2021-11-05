@@ -1,0 +1,4 @@
+background = "overworld/rooms/home/room/bg"
+
+[initial_player_states]
+_ = { x = 600, y = 315, direction = "forward" }

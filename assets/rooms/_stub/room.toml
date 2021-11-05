@@ -1,4 +1,0 @@
-background = "overworld/rooms/_stub/bg"
-
-[initial_player_states]
-_ = { x = 200, y = 200, direction = "forward" }
