@@ -1,10 +1,11 @@
 use crate::graphics::texture::Texture;
+use crate::overworld::pass_map::BitmapPassMap;
 use crate::overworld::room::PartialCreationParams as RoomPartialCreationParams;
 use ggez::Context;
 use std::collections::HashMap;
 use std::error::Error;
 use std::fmt::{self, Display, Formatter};
-use underkate_tools::{load_room, load_texture};
+use underkate_tools::{load_room, load_texture, load_pass_map};
 
 #[derive(Debug, Copy, Clone)]
 pub struct ResourceDoesNotExist<'a> {
@@ -46,6 +47,7 @@ impl<T: Clone, S: ResourceStorage<T>> ResourceStorageCloneExt<T> for S {
 pub struct GlobalResourceStorage {
     textures: HashMap<String, Texture>,
     room_partial_creation_params: HashMap<String, RoomPartialCreationParams>,
+    bitmap_pass_maps: HashMap<String, BitmapPassMap>,
 }
 
 impl GlobalResourceStorage {
@@ -53,6 +55,7 @@ impl GlobalResourceStorage {
         Self {
             textures: HashMap::new(),
             room_partial_creation_params: HashMap::new(),
+            bitmap_pass_maps: HashMap::new(),
         }
     }
 }
@@ -86,6 +89,20 @@ impl ResourceStorage<RoomPartialCreationParams> for GlobalResourceStorage {
     }
 }
 
+impl ResourceStorage<BitmapPassMap> for GlobalResourceStorage {
+    fn try_get<'a>(&self, name: &'a str) -> Result<&BitmapPassMap, ResourceDoesNotExist<'a>> {
+        self.bitmap_pass_maps
+            .get(name)
+            .ok_or(ResourceDoesNotExist { name })
+    }
+
+    fn put(&mut self, name: String, resource: BitmapPassMap) {
+        if let Some(_) = self.bitmap_pass_maps.insert(name, resource) {
+            panic!("Duplicate resource name");
+        }
+    }
+}
+
 macro_rules! use_texture {
     ($path:tt => $storage:expr, $ctx:expr) => {
         let ctx: &mut Context = $ctx;
@@ -99,6 +116,12 @@ macro_rules! use_room {
     };
 }
 
+macro_rules! use_pass_map {
+    ($path:tt => $storage:expr) => {
+        $storage.put(String::from($path), load_pass_map!($path));
+    };
+}
+
 pub fn make_global_storage(ctx: &mut Context) -> GlobalResourceStorage {
     let mut storage = GlobalResourceStorage::new();
     use_texture!("overworld/player/front" => storage, ctx);
@@ -106,7 +129,7 @@ pub fn make_global_storage(ctx: &mut Context) -> GlobalResourceStorage {
     use_texture!("overworld/player/leftward" => storage, ctx);
     use_texture!("overworld/player/rightward" => storage, ctx);
     use_texture!("overworld/rooms/home/room/bg" => storage, ctx);
-    use_texture!("overworld/rooms/home/room/pass" => storage, ctx);
+    use_pass_map!("overworld/rooms/home/room" => storage);
     use_room!("home/room" => storage);
     storage
 }

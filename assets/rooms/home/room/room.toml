@@ -1,4 +1,6 @@
 background = "overworld/rooms/home/room/bg"
+pass_map = "overworld/rooms/home/room"
 
 [initial_player_states]
-_ = { x = 600, y = 315, direction = "forward" }
+#_ = { x = 600, y = 315, direction = "forward" }
+_ = { x = 500, y = 315, direction = "forward" }

@@ -2,7 +2,8 @@ use super::collide::Collide;
 use super::geometry::TranslationContext;
 use super::move_trait::{Direction, Move, MoveContext, Position};
 use super::multiwalk::MultiWalk;
-use super::passability_checker::PassabilityChecker;
+use super::pass_map::{BitmapPassMap, PassMap};
+use super::passability_checker::{PassMapPassabilityChecker, PassabilityCheck};
 use super::player::Player;
 use super::walk::Walk;
 use crate::geometry::OverworldRect;
@@ -43,6 +44,7 @@ impl CreationParams {
 
 pub struct Room {
     background: Texture,
+    pass_map: BitmapPassMap,
     player: Player,
 }
 
@@ -58,6 +60,7 @@ impl Room {
 
         Room {
             background: global_resource_storage.get_cloned(&params.background_path),
+            pass_map: global_resource_storage.get_cloned(&params.pass_map_path),
             player,
         }
     }
@@ -75,11 +78,12 @@ impl Room {
         let time_slice = ggez::timer::delta(ctx);
 
         let assumed_new_player_position = self.player.get_updated_position(time_slice);
-        if let Some(new_player_position) = self.player.find_passable_position(
+        let maybe_new_player_position = self.player.find_passable_position(
             self.player.position(),
             assumed_new_player_position,
             &self.passability_checker(),
-        ) {
+        );
+        if let Some(new_player_position) = maybe_new_player_position {
             self.player.set_position(new_player_position)
         }
 
@@ -166,12 +170,12 @@ impl Room {
         }
     }
 
-    fn passability_checker(&self) -> PassabilityChecker {
-        PassabilityChecker::new(self.map_rect())
+    fn passability_checker<'a>(&'a self) -> impl PassabilityCheck + 'a {
+        PassMapPassabilityChecker::new(self.pass_map())
     }
 
-    fn map_rect(&self) -> OverworldRect<f32> {
-        OverworldRect::from_size([800.0, 600.0].into())
+    fn pass_map(&self) -> &impl PassMap {
+        &self.pass_map
     }
 
     fn translation_context(&self) -> TranslationContext {

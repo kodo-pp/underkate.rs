@@ -9,6 +9,7 @@ use syn::Lit;
 #[derive(Deserialize)]
 struct Manifest {
     background: String,
+    pass_map: String,
     initial_player_states: HashMap<String, PlayerState>,
 }
 
@@ -42,6 +43,7 @@ pub fn load_room(tokens: TokenStream) -> TokenStream {
         toml::from_str(&read_file(&manifest_full_path)).expect("Failed to parse manifest file");
 
     let background_path = manifest.background;
+    let pass_map_path = manifest.pass_map;
     let initial_player_states_keys: Vec<_> = manifest.initial_player_states.keys().collect();
     let initial_player_states_values_x: Vec<_> = manifest
         .initial_player_states
@@ -72,7 +74,7 @@ pub fn load_room(tokens: TokenStream) -> TokenStream {
     (quote! {
         crate::overworld::room::PartialCreationParams {
             background_path: ::std::string::String::from(#background_path),
-            pass_map_path: ::std::string::String::from("*todo*"),
+            pass_map_path: ::std::string::String::from(#pass_map_path),
             initial_player_states: vec![
                 #(
                     (

@@ -14,3 +14,4 @@ syn = "1.0.74"
 serde = { version = "1.0.126", features = ["derive"] }
 toml = "0.5.8"
 quote = "1.0.9"
+image = "0.23.4"

@@ -1,6 +1,7 @@
-mod texture;
 mod file;
+mod pass_map;
 mod room;
+mod texture;
 
 use proc_macro::TokenStream;
 
@@ -14,4 +15,9 @@ pub fn load_texture(tokens: TokenStream) -> TokenStream {
 #[proc_macro]
 pub fn load_room(tokens: TokenStream) -> TokenStream {
     room::load_room(tokens)
+}
+
+#[proc_macro]
+pub fn load_pass_map(tokens: TokenStream) -> TokenStream {
+    pass_map::load_pass_map(tokens)
 }

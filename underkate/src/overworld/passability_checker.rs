@@ -1,15 +1,25 @@
 use crate::geometry::OverworldRect;
+use crate::overworld::pass_map::PassMap;
 
-pub struct PassabilityChecker {
-    map_rect: OverworldRect<f32>,
+pub trait PassabilityCheck {
+    fn can_pass(&self, player_hitbox: &OverworldRect<f32>) -> bool;
 }
 
-impl PassabilityChecker {
-    pub fn new(map_rect: OverworldRect<f32>) -> Self {
-        Self { map_rect }
-    }
+#[derive(Debug, Clone, Copy)]
+pub struct PassMapPassabilityChecker<'passmap, P: PassMap> {
+    pass_map: &'passmap P,
+}
 
-    pub fn can_pass(&self, hitbox: &OverworldRect<f32>) -> bool {
-        self.map_rect.contains_box(hitbox)
+impl<'passmap, P: PassMap> PassMapPassabilityChecker<'passmap, P> {
+    pub fn new(pass_map: &'passmap P) -> Self {
+        Self { pass_map }
+    }
+}
+
+impl<P: PassMap> PassabilityCheck for PassMapPassabilityChecker<'_, P> {
+    fn can_pass(&self, player_hitbox: &OverworldRect<f32>) -> bool {
+        let within_rect = || self.pass_map.bounds().contains_box(player_hitbox);
+        let map_passable = || !self.pass_map.collides_with(player_hitbox);
+        within_rect() && map_passable()
     }
 }
