@@ -1,4 +1,4 @@
-use super::room::{Room, CreationParams};
+use super::room::{CreationParams, Room};
 use crate::resources::{GlobalResourceStorage, ResourceStorageCloneExt};
 use crate::screen::Screen;
 use crate::ui_event::UiEvent;
@@ -14,7 +14,10 @@ impl OverworldScreen {
         let room_creation_params = global_resource_storage.get_cloned("home/room");
 
         OverworldScreen {
-            room: Room::new(CreationParams::from_partial(room_creation_params, "_"), global_resource_storage),
+            room: Room::new(
+                CreationParams::from_partial(room_creation_params, "_"),
+                global_resource_storage,
+            ),
         }
     }
 }
