@@ -1,6 +1,5 @@
-use crate::script::{
-    EventHandle, Runtime, Script, ScriptContext, ScriptHandle, ScriptHandleGenerator,
-};
+use crate::game_context::GameContext;
+use crate::script::{EventHandle, Runtime, Script, ScriptHandle, ScriptHandleGenerator};
 use std::collections::HashMap;
 use std::future::Future;
 use std::pin::Pin;
@@ -57,14 +56,6 @@ impl DefaultRuntime {
         }
     }
 
-    pub fn start_script(&mut self, context: ScriptContext, mut script: Pin<Box<dyn Script>>) {
-        let handle = self.script_handle_generator.gen_handle();
-        let future = script.as_mut().start(handle, context);
-        let state = ScriptState::from_future(future);
-        self.scripts.insert(handle, state);
-        self.resume_script(handle, None);
-    }
-
     fn resume_script(&mut self, script: ScriptHandle, wake_event: Option<EventHandle>) {
         let waker = make_noop_waker();
         let mut context = Context::from_waker(&waker);
@@ -78,7 +69,7 @@ impl DefaultRuntime {
         if poll.is_ready() {
             // XXX: maybe we shouldn't really do this.
             for (_event, list) in self.subscribers.iter_mut() {
-                list.once.retain(|&x| x == script);
+                list.once.retain(|&x| x != script);
             }
             self.scripts.remove(&script);
         }
@@ -100,5 +91,13 @@ impl Runtime for DefaultRuntime {
 
     fn wake_event(&self, script: ScriptHandle) -> Option<EventHandle> {
         self.scripts[&script].wake_event
+    }
+
+    fn start_script(&mut self, context: GameContext, script: &mut dyn Script) {
+        let handle = self.script_handle_generator.gen_handle();
+        let future = script.start(handle, context);
+        let state = ScriptState::from_future(future);
+        self.scripts.insert(handle, state);
+        self.resume_script(handle, None);
     }
 }

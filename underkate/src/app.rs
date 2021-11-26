@@ -1,6 +1,10 @@
+use crate::default_runtime::DefaultRuntime;
+use crate::game_context::{GameContext, GameContextRef};
+use crate::overworld::room::{CreationParams, Room};
 use crate::overworld::screen::OverworldScreen;
-use crate::resources::{self, GlobalResourceStorage};
+use crate::resources::{self, GlobalResourceStorage, ResourceStorageCloneExt};
 use crate::screen::Screen;
+use crate::script::{EventHandleGenerator, ScriptHandleGenerator};
 use crate::ui_event::UiEvent;
 use ggez::conf::WindowSetup;
 use ggez::event::{self, EventHandler};
@@ -10,13 +14,9 @@ use ggez::{Context, ContextBuilder, GameError, GameResult};
 use std::cell::RefCell;
 use std::default::Default;
 use std::sync::{Arc, Mutex};
-use crate::default_runtime::DefaultRuntime;
-use crate::script::{EventHandleGenerator, ScriptHandleGenerator};
 
 struct Underkate {
-    screen: Arc<Mutex<RefCell<dyn Screen>>>,
-    global_resource_storage: Arc<GlobalResourceStorage>,
-    runtime: Arc<Mutex<RefCell<DefaultRuntime>>>,
+    game_context: GameContext,
     event_handle_generator: EventHandleGenerator,
     script_handle_generator: ScriptHandleGenerator,
 }
@@ -24,17 +24,33 @@ struct Underkate {
 impl Underkate {
     pub fn new(ctx: &mut Context) -> Self {
         let global_resource_storage = Arc::new(resources::make_global_storage(ctx));
-        let screen = Arc::new(Mutex::new(RefCell::new(OverworldScreen::new(
-            &global_resource_storage,
-        ))));
         let runtime = Arc::new(Mutex::new(RefCell::new(DefaultRuntime::new())));
         let event_handle_generator = EventHandleGenerator::new();
         let script_handle_generator = ScriptHandleGenerator::new();
+        let mut overworld_screen = Arc::new(Mutex::new(RefCell::new(OverworldScreen::new())));
 
-        Underkate {
-            screen,
+        let game_context = GameContext {
             global_resource_storage,
             runtime,
+            overworld_screen,
+        };
+
+        let starting_room = Room::new(
+            CreationParams::from_partial(
+                game_context.global_resource_storage.get_cloned("home/room"),
+                "_",
+            ),
+            game_context.global_resource_storage.as_ref(),
+        );
+        game_context
+            .overworld_screen
+            .lock()
+            .unwrap()
+            .borrow_mut()
+            .load_room(game_context.as_context_ref(), starting_room);
+
+        Underkate {
+            game_context,
             event_handle_generator,
             script_handle_generator,
         }
@@ -43,11 +59,21 @@ impl Underkate {
 
 impl EventHandler<GameError> for Underkate {
     fn update(&mut self, ctx: &mut Context) -> GameResult {
-        self.screen.lock().unwrap().borrow_mut().update(ctx)
+        self.game_context
+            .overworld_screen
+            .lock()
+            .unwrap()
+            .borrow_mut()
+            .update(ctx, self.game_context.as_context_ref())
     }
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult {
-        self.screen.lock().unwrap().borrow_mut().draw(ctx)?;
+        self.game_context
+            .overworld_screen
+            .lock()
+            .unwrap()
+            .borrow_mut()
+            .draw(ctx, self.game_context.as_context_ref())?;
         graphics::present(ctx)
     }
 
@@ -57,20 +83,22 @@ impl EventHandler<GameError> for Underkate {
         }
 
         let ui_event = UiEvent::KeyDown { key, mods };
-        self.screen
+        self.game_context
+            .overworld_screen
             .lock()
             .unwrap()
             .borrow_mut()
-            .handle_event(ctx, ui_event);
+            .handle_event(ctx, self.game_context.as_context_ref(), ui_event);
     }
 
     fn key_up_event(&mut self, ctx: &mut Context, key: KeyCode, mods: KeyMods) {
         let ui_event = UiEvent::KeyUp { key, mods };
-        self.screen
+        self.game_context
+            .overworld_screen
             .lock()
             .unwrap()
             .borrow_mut()
-            .handle_event(ctx, ui_event);
+            .handle_event(ctx, self.game_context.as_context_ref(), ui_event);
     }
 }
 
@@ -79,7 +107,7 @@ pub fn run() -> GameResult {
         .window_setup(WindowSetup::default().title("Underkate"))
         .build()?;
 
-    // TODO: loading screen.
+    // TODO: loading overworld_screen.
 
     let underkate = Underkate::new(&mut ctx);
     event::run(ctx, event_loop, underkate);

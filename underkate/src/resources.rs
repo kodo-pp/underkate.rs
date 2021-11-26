@@ -5,7 +5,8 @@ use ggez::Context;
 use std::collections::HashMap;
 use std::error::Error;
 use std::fmt::{self, Display, Formatter};
-use underkate_tools::{load_room, load_texture, load_pass_map};
+use underkate_tools::{load_room, load_texture, load_pass_map, load_rust_script};
+use crate::script::rust_script::RustScript;
 
 #[derive(Debug, Copy, Clone)]
 pub struct ResourceDoesNotExist<'a> {
@@ -48,6 +49,7 @@ pub struct GlobalResourceStorage {
     textures: HashMap<String, Texture>,
     room_partial_creation_params: HashMap<String, RoomPartialCreationParams>,
     bitmap_pass_maps: HashMap<String, BitmapPassMap>,
+    rust_scripts: HashMap<String, RustScript>,
 }
 
 impl GlobalResourceStorage {
@@ -56,52 +58,31 @@ impl GlobalResourceStorage {
             textures: HashMap::new(),
             room_partial_creation_params: HashMap::new(),
             bitmap_pass_maps: HashMap::new(),
+            rust_scripts: HashMap::new(),
         }
     }
 }
 
-impl ResourceStorage<Texture> for GlobalResourceStorage {
-    fn try_get<'a>(&self, name: &'a str) -> Result<&Texture, ResourceDoesNotExist<'a>> {
-        self.textures.get(name).ok_or(ResourceDoesNotExist { name })
-    }
+macro_rules! resource_storage_impl {
+    ($resource:ty as .$field:ident) => {
+        impl ResourceStorage<$resource> for GlobalResourceStorage {
+            fn try_get<'a>(&self, name: &'a str) -> Result<&$resource, ResourceDoesNotExist<'a>> {
+                self.$field.get(name).ok_or(ResourceDoesNotExist { name })
+            }
 
-    fn put(&mut self, name: String, resource: Texture) {
-        if let Some(_) = self.textures.insert(name, resource) {
-            panic!("Duplicate resource name");
+            fn put(&mut self, name: String, resource: $resource) {
+                if let Some(_) = self.$field.insert(name, resource) {
+                    panic!("Duplicate resource name");
+                }
+            }
         }
-    }
+    };
 }
 
-impl ResourceStorage<RoomPartialCreationParams> for GlobalResourceStorage {
-    fn try_get<'a>(
-        &self,
-        name: &'a str,
-    ) -> Result<&RoomPartialCreationParams, ResourceDoesNotExist<'a>> {
-        self.room_partial_creation_params
-            .get(name)
-            .ok_or(ResourceDoesNotExist { name })
-    }
-
-    fn put(&mut self, name: String, resource: RoomPartialCreationParams) {
-        if let Some(_) = self.room_partial_creation_params.insert(name, resource) {
-            panic!("Duplicate resource name");
-        }
-    }
-}
-
-impl ResourceStorage<BitmapPassMap> for GlobalResourceStorage {
-    fn try_get<'a>(&self, name: &'a str) -> Result<&BitmapPassMap, ResourceDoesNotExist<'a>> {
-        self.bitmap_pass_maps
-            .get(name)
-            .ok_or(ResourceDoesNotExist { name })
-    }
-
-    fn put(&mut self, name: String, resource: BitmapPassMap) {
-        if let Some(_) = self.bitmap_pass_maps.insert(name, resource) {
-            panic!("Duplicate resource name");
-        }
-    }
-}
+resource_storage_impl!(Texture as .textures);
+resource_storage_impl!(RoomPartialCreationParams as .room_partial_creation_params);
+resource_storage_impl!(BitmapPassMap as .bitmap_pass_maps);
+resource_storage_impl!(RustScript as .rust_scripts);
 
 macro_rules! use_texture {
     ($path:tt => $storage:expr, $ctx:expr) => {
@@ -122,6 +103,12 @@ macro_rules! use_pass_map {
     };
 }
 
+macro_rules! use_rust_script {
+    ($path:tt => $storage:expr) => {
+        $storage.put(String::from($path), load_rust_script!($path));
+    };
+}
+
 pub fn make_global_storage(ctx: &mut Context) -> GlobalResourceStorage {
     let mut storage = GlobalResourceStorage::new();
     use_texture!("overworld/player/front" => storage, ctx);
@@ -131,5 +118,7 @@ pub fn make_global_storage(ctx: &mut Context) -> GlobalResourceStorage {
     use_texture!("overworld/rooms/home/room/bg" => storage, ctx);
     use_pass_map!("overworld/rooms/home/room" => storage);
     use_room!("home/room" => storage);
+    use_rust_script!("overworld/rooms/home/room/init" => storage);
+
     storage
 }

@@ -1,38 +1,47 @@
 use super::room::{CreationParams, Room};
+use crate::game_context::GameContextRef;
 use crate::resources::{GlobalResourceStorage, ResourceStorageCloneExt};
 use crate::screen::Screen;
 use crate::ui_event::UiEvent;
 use ggez::graphics::{self, Color};
-use ggez::{Context, GameResult};
+use ggez::GameResult;
 
 pub struct OverworldScreen {
-    room: Room,
+    room: Option<Room>,
 }
 
 impl OverworldScreen {
-    pub fn new(global_resource_storage: &GlobalResourceStorage) -> OverworldScreen {
-        let room_creation_params = global_resource_storage.get_cloned("home/room");
+    pub fn new() -> OverworldScreen {
+        OverworldScreen { room: None }
+    }
 
-        OverworldScreen {
-            room: Room::new(
-                CreationParams::from_partial(room_creation_params, "_"),
-                global_resource_storage,
-            ),
+    pub fn load_room(&mut self, ctx: GameContextRef<'_>, room: Room) {
+        self.room = Some(room);
+        self.init_room(ctx);
+    }
+
+    fn init_room(&mut self, ctx: GameContextRef<'_>) {
+        if let Some(script) = self.room.as_mut().unwrap().init_script_mut() {
+            ctx.runtime
+                .lock()
+                .unwrap()
+                .borrow_mut()
+                .start_script(ctx.to_owned(), script.as_mut());
         }
     }
 }
 
 impl Screen for OverworldScreen {
-    fn draw(&mut self, ctx: &mut Context) -> GameResult {
-        graphics::clear(ctx, Color::BLACK);
-        self.room.draw(ctx)
+    fn draw(&mut self, ggez: &mut ggez::Context, ctx: GameContextRef<'_>) -> GameResult {
+        graphics::clear(ggez, Color::BLACK);
+        self.room.as_mut().unwrap().draw(ggez)
     }
 
-    fn update(&mut self, ctx: &mut Context) -> GameResult {
-        self.room.update(ctx)
+    fn update(&mut self, ggez: &mut ggez::Context, ctx: GameContextRef<'_>) -> GameResult {
+        self.room.as_mut().unwrap().update(ggez)
     }
 
-    fn handle_event(&mut self, ctx: &mut Context, event: UiEvent) {
-        self.room.handle_event(ctx, event)
+    fn handle_event(&mut self, ggez: &mut ggez::Context, ctx: GameContextRef<'_>, event: UiEvent) {
+        self.room.as_mut().unwrap().handle_event(ggez, event)
     }
 }

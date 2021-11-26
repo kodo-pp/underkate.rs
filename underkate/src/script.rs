@@ -1,9 +1,11 @@
+pub mod rust_script;
+
+use crate::game_context::GameContext;
 use crate::resources::GlobalResourceStorage;
 use crate::screen::Screen;
 use std::cell::RefCell;
 use std::future::Future;
 use std::pin::Pin;
-use std::sync::{Arc, Mutex};
 
 mod tag {
     #[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -22,18 +24,13 @@ pub trait Runtime {
     fn subscribe(&mut self, event: EventHandle, script: ScriptHandle);
     fn raise_event(&mut self, event: EventHandle);
     fn wake_event(&self, script: ScriptHandle) -> Option<EventHandle>;
-}
-
-pub struct ScriptContext {
-    screen: Arc<Mutex<RefCell<dyn Screen>>>,
-    global_resource_storage: Arc<GlobalResourceStorage>,
-    runtime: Arc<Mutex<RefCell<dyn Runtime>>>,
+    fn start_script(&mut self, context: GameContext, script: &mut dyn Script);
 }
 
 pub trait Script {
     fn start(
-        self: Pin<&mut Self>,
+        &mut self,
         script_handle: ScriptHandle,
-        context: ScriptContext,
+        context: GameContext,
     ) -> Pin<Box<dyn Future<Output = ()>>>;
 }

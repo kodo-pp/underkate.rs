@@ -33,7 +33,16 @@ pub fn load_rust_script(tokens: TokenStream) -> TokenStream {
 
     let result = quote! {{
         mod #module_name {
-            #rust_code_tokens
+            mod script {
+                #rust_code_tokens
+            }
+
+            pub fn main(
+                script_handle: crate::script::ScriptHandle,
+                context: crate::game_context::GameContext,
+            ) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()>>> {
+                Box::pin(script::main(script_handle, context))
+            }
         }
 
         crate::script::rust_script::RustScript::new(#module_name::main)

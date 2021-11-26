@@ -10,6 +10,8 @@ use crate::geometry::OverworldRect;
 use crate::graphics::texture::Texture;
 use crate::graphics::Draw;
 use crate::resources::{GlobalResourceStorage, ResourceStorageCloneExt};
+use crate::script::rust_script::RustScript;
+use crate::script::Script;
 use crate::ui_event::UiEvent;
 use ggez::input::keyboard::KeyCode;
 use ggez::{Context, GameResult};
@@ -20,6 +22,7 @@ pub struct PartialCreationParams {
     pub background_path: String,
     pub pass_map_path: String,
     pub initial_player_states: HashMap<String, (Position, Direction)>,
+    pub init_script: Option<&'static str>,
 }
 
 #[derive(Debug, Clone)]
@@ -28,6 +31,7 @@ pub struct CreationParams {
     pub pass_map_path: String,
     pub player_position: Position,
     pub player_direction: Direction,
+    pub init_script: Option<&'static str>,
 }
 
 impl CreationParams {
@@ -38,6 +42,7 @@ impl CreationParams {
             pass_map_path: partial.pass_map_path,
             player_position: position,
             player_direction: direction,
+            init_script: partial.init_script,
         }
     }
 }
@@ -46,6 +51,7 @@ pub struct Room {
     background: Texture,
     pass_map: BitmapPassMap,
     player: Player,
+    init_script: Option<Box<dyn Script>>,
 }
 
 impl Room {
@@ -58,9 +64,15 @@ impl Room {
             },
         );
 
+        let init_script = params.init_script.map(|name| {
+            let script: RustScript = global_resource_storage.get_cloned(name);
+            Box::new(script) as Box<dyn Script>
+        });
+
         Room {
             background: global_resource_storage.get_cloned(&params.background_path),
             pass_map: global_resource_storage.get_cloned(&params.pass_map_path),
+            init_script,
             player,
         }
     }
@@ -180,6 +192,10 @@ impl Room {
 
     fn translation_context(&self) -> TranslationContext {
         TranslationContext
+    }
+
+    pub fn init_script_mut(&mut self) -> Option<&mut Box<dyn Script>> {
+        self.init_script.as_mut()
     }
 }
 

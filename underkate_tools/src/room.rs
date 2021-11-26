@@ -1,7 +1,7 @@
 use crate::file::read_file;
 use crate::ASSETS_DIR;
 use proc_macro::TokenStream;
-use quote::{quote, format_ident};
+use quote::{format_ident, quote};
 use serde::Deserialize;
 use std::collections::HashMap;
 use syn::Lit;
@@ -11,6 +11,12 @@ struct Manifest {
     background: String,
     pass_map: String,
     initial_player_states: HashMap<String, PlayerState>,
+    scripts: Scripts,
+}
+
+#[derive(Deserialize)]
+struct Scripts {
+    init: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -71,6 +77,12 @@ pub fn load_room(tokens: TokenStream) -> TokenStream {
         })
         .collect();
 
+    let init_script = if let Some(script) = manifest.scripts.init {
+        quote! { Some(#script) }
+    } else {
+        quote! { None }
+    };
+
     (quote! {
         crate::overworld::room::PartialCreationParams {
             background_path: ::std::string::String::from(#background_path),
@@ -89,6 +101,7 @@ pub fn load_room(tokens: TokenStream) -> TokenStream {
                     )
                 ),*
             ].into_iter().collect(),
+            init_script: #init_script,
         }
     })
     .into()
