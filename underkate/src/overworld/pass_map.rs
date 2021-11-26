@@ -1,7 +1,7 @@
 pub mod bitmap_pass_map;
 
-pub use bitmap_pass_map::BitmapPassMap;
 use crate::geometry::OverworldRect;
+pub use bitmap_pass_map::BitmapPassMap;
 
 pub trait PassMap {
     fn collides_with(&self, rect: &OverworldRect<f32>) -> bool;

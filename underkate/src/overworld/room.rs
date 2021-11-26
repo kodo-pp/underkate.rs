@@ -6,7 +6,7 @@ use super::pass_map::{BitmapPassMap, PassMap};
 use super::passability_checker::{PassMapPassabilityChecker, PassabilityCheck};
 use super::player::Player;
 use super::walk::Walk;
-use crate::geometry::OverworldRect;
+use crate::game_context::GameContextRef;
 use crate::graphics::texture::Texture;
 use crate::graphics::Draw;
 use crate::resources::{GlobalResourceStorage, ResourceStorageCloneExt};
@@ -77,17 +77,17 @@ impl Room {
         }
     }
 
-    pub fn draw(&mut self, ctx: &mut Context) -> GameResult {
+    pub fn draw(&mut self, ggez: &mut Context, _ctx: GameContextRef<'_>) -> GameResult {
         self.background.draw(
-            ctx,
+            ggez,
             self.background.dimensions().to_vector().to_point() * 0.5,
         )?;
-        draw_entity(ctx, &self.translation_context(), &mut self.player)?;
+        draw_entity(ggez, &self.translation_context(), &mut self.player)?;
         Ok(())
     }
 
-    pub fn update(&mut self, ctx: &mut Context) -> GameResult {
-        let time_slice = ggez::timer::delta(ctx);
+    pub fn update(&mut self, ggez: &mut Context, _ctx: GameContextRef<'_>) -> GameResult {
+        let time_slice = ggez::timer::delta(ggez);
 
         let assumed_new_player_position = self.player.get_updated_position(time_slice);
         let maybe_new_player_position = self.player.find_passable_position(
@@ -102,7 +102,7 @@ impl Room {
         Ok(())
     }
 
-    pub fn handle_event(&mut self, _ctx: &mut Context, event: UiEvent) {
+    pub fn handle_event(&mut self, _ggez: &mut Context, _ctx: GameContextRef<'_>, event: UiEvent) {
         match event {
             UiEvent::KeyDown { key, .. } => {
                 self.handle_key_down(key);

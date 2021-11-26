@@ -1,9 +1,6 @@
 pub mod rust_script;
 
 use crate::game_context::GameContext;
-use crate::resources::GlobalResourceStorage;
-use crate::screen::Screen;
-use std::cell::RefCell;
 use std::future::Future;
 use std::pin::Pin;
 

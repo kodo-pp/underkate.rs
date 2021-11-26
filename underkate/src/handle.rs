@@ -14,11 +14,17 @@ pub struct HandleGenerator<Tag> {
 
 impl<Tag> HandleGenerator<Tag> {
     pub fn new() -> Self {
-        Self { counter: 0, _phantom: PhantomData }
+        Self {
+            counter: 0,
+            _phantom: PhantomData,
+        }
     }
 
     pub fn gen_handle(&mut self) -> Handle<Tag> {
-        let handle = Handle { raw: self.counter, _phantom: PhantomData };
+        let handle = Handle {
+            raw: self.counter,
+            _phantom: PhantomData,
+        };
         self.counter += 1;
         handle
     }

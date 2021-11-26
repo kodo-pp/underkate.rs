@@ -76,7 +76,9 @@ impl Texture {
     pub fn dimensions(&self) -> ScreenDimensions<f32> {
         match &self.kind {
             TextureKind::Static(image) => image_to_dimensions(image).into(),
-            TextureKind::Animated { cached_dimensions, .. } => *cached_dimensions,
+            TextureKind::Animated {
+                cached_dimensions, ..
+            } => *cached_dimensions,
         }
     }
 

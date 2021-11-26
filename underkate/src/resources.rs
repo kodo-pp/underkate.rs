@@ -1,12 +1,12 @@
 use crate::graphics::texture::Texture;
 use crate::overworld::pass_map::BitmapPassMap;
 use crate::overworld::room::PartialCreationParams as RoomPartialCreationParams;
+use crate::script::rust_script::RustScript;
 use ggez::Context;
 use std::collections::HashMap;
 use std::error::Error;
 use std::fmt::{self, Display, Formatter};
-use underkate_tools::{load_room, load_texture, load_pass_map, load_rust_script};
-use crate::script::rust_script::RustScript;
+use underkate_tools::{load_pass_map, load_room, load_rust_script, load_texture};
 
 #[derive(Debug, Copy, Clone)]
 pub struct ResourceDoesNotExist<'a> {

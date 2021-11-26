@@ -1,5 +1,5 @@
-use crate::resources::GlobalResourceStorage;
 use crate::overworld::screen::OverworldScreen;
+use crate::resources::GlobalResourceStorage;
 use crate::script::Runtime;
 use std::cell::RefCell;
 use std::sync::{Arc, Mutex};

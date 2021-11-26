@@ -1,7 +1,7 @@
+use std::fmt::Display;
 use std::fs::File;
 use std::io::Read;
 use std::path::Path;
-use std::fmt::Display;
 
 pub fn read_file<P: AsRef<Path> + Display>(path: P) -> String {
     let error_string = format!("Failed to open file {}", path);

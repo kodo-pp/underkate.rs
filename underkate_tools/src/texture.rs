@@ -1,9 +1,9 @@
+use crate::file::read_file;
+use crate::ASSETS_DIR;
 use proc_macro::TokenStream;
 use quote::quote;
 use serde::Deserialize;
 use syn::Lit;
-use crate::ASSETS_DIR;
-use crate::file::read_file;
 
 #[derive(Deserialize)]
 #[serde(tag = "type")]
@@ -47,7 +47,7 @@ pub fn load_texture(tokens: TokenStream) -> TokenStream {
                         image.set_filter(::ggez::graphics::FilterMode::Nearest);
                         image
                     },
-                    #scale, 
+                    #scale,
                 )
             }
         }

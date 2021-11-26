@@ -1,4 +1,4 @@
-use super::{ScriptHandle, Script};
+use super::{Script, ScriptHandle};
 use crate::game_context::GameContext;
 use std::future::Future;
 use std::pin::Pin;

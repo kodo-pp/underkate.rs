@@ -1,6 +1,5 @@
-use super::room::{CreationParams, Room};
+use super::room::Room;
 use crate::game_context::GameContextRef;
-use crate::resources::{GlobalResourceStorage, ResourceStorageCloneExt};
 use crate::screen::Screen;
 use crate::ui_event::UiEvent;
 use ggez::graphics::{self, Color};
@@ -34,14 +33,14 @@ impl OverworldScreen {
 impl Screen for OverworldScreen {
     fn draw(&mut self, ggez: &mut ggez::Context, ctx: GameContextRef<'_>) -> GameResult {
         graphics::clear(ggez, Color::BLACK);
-        self.room.as_mut().unwrap().draw(ggez)
+        self.room.as_mut().unwrap().draw(ggez, ctx)
     }
 
     fn update(&mut self, ggez: &mut ggez::Context, ctx: GameContextRef<'_>) -> GameResult {
-        self.room.as_mut().unwrap().update(ggez)
+        self.room.as_mut().unwrap().update(ggez, ctx)
     }
 
     fn handle_event(&mut self, ggez: &mut ggez::Context, ctx: GameContextRef<'_>, event: UiEvent) {
-        self.room.as_mut().unwrap().handle_event(ggez, event)
+        self.room.as_mut().unwrap().handle_event(ggez, ctx, event)
     }
 }

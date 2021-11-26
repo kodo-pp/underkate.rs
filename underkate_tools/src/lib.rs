@@ -1,8 +1,8 @@
 mod file;
 mod pass_map;
 mod room;
-mod texture;
 mod rust_script;
+mod texture;
 
 use proc_macro::TokenStream;
 

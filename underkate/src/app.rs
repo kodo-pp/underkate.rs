@@ -1,8 +1,8 @@
 use crate::default_runtime::DefaultRuntime;
-use crate::game_context::{GameContext, GameContextRef};
+use crate::game_context::GameContext;
 use crate::overworld::room::{CreationParams, Room};
 use crate::overworld::screen::OverworldScreen;
-use crate::resources::{self, GlobalResourceStorage, ResourceStorageCloneExt};
+use crate::resources::{self, ResourceStorageCloneExt};
 use crate::screen::Screen;
 use crate::script::{EventHandleGenerator, ScriptHandleGenerator};
 use crate::ui_event::UiEvent;
@@ -27,7 +27,7 @@ impl Underkate {
         let runtime = Arc::new(Mutex::new(RefCell::new(DefaultRuntime::new())));
         let event_handle_generator = EventHandleGenerator::new();
         let script_handle_generator = ScriptHandleGenerator::new();
-        let mut overworld_screen = Arc::new(Mutex::new(RefCell::new(OverworldScreen::new())));
+        let overworld_screen = Arc::new(Mutex::new(RefCell::new(OverworldScreen::new())));
 
         let game_context = GameContext {
             global_resource_storage,
