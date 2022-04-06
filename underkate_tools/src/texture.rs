@@ -1,9 +1,9 @@
+use crate::args::Args;
 use crate::file::read_file;
 use crate::ASSETS_DIR;
 use proc_macro::TokenStream;
 use quote::quote;
 use serde::Deserialize;
-use crate::args::Args;
 
 #[derive(Deserialize)]
 #[serde(tag = "type")]

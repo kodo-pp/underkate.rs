@@ -1,8 +1,8 @@
 use crate::args::Args;
+use crate::common::ResourceType;
 use proc_macro2::TokenStream;
 use quote::quote;
 use std::collections::HashMap;
-use crate::common::ResourceType;
 
 fn mangle_path(path: &str) -> String {
     let mut mangled = String::from("AssetDir_");
@@ -75,12 +75,14 @@ impl DirectoryStruct {
             .iter()
             .map(|&(name, _res)| format!("_res_{}", make_name_safe(name)));
 
-        let resource_types = resources.iter().map(
-            |&(_name, res)| res.resource_type.rust_type());
+        let resource_types = resources
+            .iter()
+            .map(|&(_name, res)| res.resource_type.rust_type());
 
-        let subdir_tokens = self.subdirectories.iter().map(|(name, subdir)| {
-            subdir.prefixed_codegen(&format!("{}/{}", prefix, name))
-        });
+        let subdir_tokens = self
+            .subdirectories
+            .iter()
+            .map(|(name, subdir)| subdir.prefixed_codegen(&format!("{}/{}", prefix, name)));
 
         let tokens = quote! {
             pub struct #struct_name {

@@ -1,3 +1,4 @@
+use crate::args::Args;
 use crate::file::read_file;
 use crate::ASSETS_DIR;
 use image::io::Reader as ImageReader;
@@ -5,7 +6,6 @@ use proc_macro::TokenStream as TokenStream1;
 use proc_macro2::{Literal, TokenTree};
 use quote::quote;
 use serde::Deserialize;
-use crate::args::Args;
 
 #[derive(Deserialize)]
 struct Manifest {

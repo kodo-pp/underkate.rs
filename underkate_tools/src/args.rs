@@ -1,6 +1,6 @@
 use crate::common::ResourceType;
-use proc_macro::{TokenStream, TokenTree};
-use syn::{Ident, Lit, LitStr};
+use proc_macro::TokenStream;
+use syn::{Lit, LitStr};
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Args {
