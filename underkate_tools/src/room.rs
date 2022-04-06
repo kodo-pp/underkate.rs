@@ -1,10 +1,10 @@
+use crate::args::Args;
 use crate::file::read_file;
 use crate::ASSETS_DIR;
 use proc_macro::TokenStream;
 use quote::{format_ident, quote};
 use serde::Deserialize;
 use std::collections::HashMap;
-use syn::Lit;
 
 #[derive(Deserialize)]
 struct Manifest {
@@ -35,14 +35,8 @@ enum Direction {
     Backward,
 }
 
-pub fn load_room(tokens: TokenStream) -> TokenStream {
-    let path_lit: Lit = syn::parse(tokens).expect("Expected path");
-    let path_str = match path_lit {
-        Lit::Str(lit_str) => lit_str.value(),
-        _ => panic!("Path must be a string literal"),
-    };
-
-    let dir_full_path = format!("{}/rooms/{}", ASSETS_DIR, path_str);
+pub fn load_room(args: &Args) -> TokenStream {
+    let dir_full_path = format!("{}/rooms/{}", ASSETS_DIR, args.path);
     let manifest_full_path = format!("{}/room.toml", dir_full_path);
 
     let manifest: Manifest =

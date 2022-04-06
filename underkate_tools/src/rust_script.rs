@@ -1,24 +1,18 @@
 use crate::file::read_file;
 use crate::ASSETS_DIR;
+use crate::args::Args;
 use proc_macro::TokenStream;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{format_ident, quote};
 use serde::Deserialize;
-use syn::Lit;
 
 #[derive(Deserialize)]
 struct Manifest {
     file: String,
 }
 
-pub fn load_rust_script(tokens: TokenStream) -> TokenStream {
-    let path_lit: Lit = syn::parse(tokens).expect("Expected path");
-    let path_str = match path_lit {
-        Lit::Str(lit_str) => lit_str.value(),
-        _ => panic!("Path must be a string literal"),
-    };
-
-    let dir_full_path = format!("{}/scripts/{}", ASSETS_DIR, path_str);
+pub fn load_rust_script(args: &Args) -> TokenStream {
+    let dir_full_path = format!("{}/{}", ASSETS_DIR, args.path);
     let manifest_full_path = format!("{}/script.toml", dir_full_path);
 
     let manifest: Manifest =
@@ -28,7 +22,7 @@ pub fn load_rust_script(tokens: TokenStream) -> TokenStream {
     let rust_code_tokens: TokenStream2 = rust_code.parse().unwrap();
     let module_name = format_ident!(
         "script_{}",
-        blake3::hash(path_str.as_bytes()).to_hex().as_str(),
+        blake3::hash(args.path.as_bytes()).to_hex().as_str(),
     );
 
     let result = quote! {{

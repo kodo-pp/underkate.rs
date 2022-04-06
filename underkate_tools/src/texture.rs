@@ -3,7 +3,7 @@ use crate::ASSETS_DIR;
 use proc_macro::TokenStream;
 use quote::quote;
 use serde::Deserialize;
-use syn::Lit;
+use crate::args::Args;
 
 #[derive(Deserialize)]
 #[serde(tag = "type")]
@@ -22,14 +22,8 @@ enum Manifest {
     },
 }
 
-pub fn load_texture(tokens: TokenStream) -> TokenStream {
-    let path_lit: Lit = syn::parse(tokens).expect("Expected path");
-    let path_str = match path_lit {
-        Lit::Str(lit_str) => lit_str.value(),
-        _ => panic!("Path must be a string literal"),
-    };
-
-    let dir_full_path = format!("{}/textures/{}", ASSETS_DIR, path_str);
+pub fn load_texture(args: &Args) -> TokenStream {
+    let dir_full_path = format!("{}/{}", ASSETS_DIR, args.path);
     let manifest_full_path = format!("{}/texture.toml", dir_full_path);
 
     let manifest: Manifest =

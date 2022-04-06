@@ -111,14 +111,14 @@ macro_rules! use_rust_script {
 
 pub fn make_global_storage(ctx: &mut Context) -> GlobalResourceStorage {
     let mut storage = GlobalResourceStorage::new();
-    use_texture!("overworld/player/front" => storage, ctx);
-    use_texture!("overworld/player/back" => storage, ctx);
-    use_texture!("overworld/player/leftward" => storage, ctx);
-    use_texture!("overworld/player/rightward" => storage, ctx);
-    use_texture!("overworld/rooms/home/room/bg" => storage, ctx);
-    use_pass_map!("overworld/rooms/home/room" => storage);
+    use_texture!("textures/overworld/player/front" => storage, ctx);
+    use_texture!("textures/overworld/player/back" => storage, ctx);
+    use_texture!("textures/overworld/player/leftward" => storage, ctx);
+    use_texture!("textures/overworld/player/rightward" => storage, ctx);
+    use_texture!("textures/overworld/rooms/home/room/bg" => storage, ctx);
+    use_pass_map!("pass-maps/overworld/rooms/home/room" => storage);
     use_room!("home/room" => storage);
-    use_rust_script!("overworld/rooms/home/room/init" => storage);
+    use_rust_script!("scripts/overworld/rooms/home/room/init" => storage);
 
     storage
 }
