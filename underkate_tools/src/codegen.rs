@@ -49,12 +49,6 @@ struct Resource {
     pub constructor_code: TokenStream,
 }
 
-impl Resource {
-    fn codegen(&self) -> TokenStream {
-        self.constructor_code.clone()
-    }
-}
-
 #[derive(Debug, Clone, Default)]
 struct DirectoryStruct {
     pub subdirectories: HashMap<String, DirectoryStruct>,
@@ -71,23 +65,75 @@ impl DirectoryStruct {
         let mut resources: Vec<_> = self.resources.iter().collect();
         resources.sort_by_key(|&(name, _res)| name);
 
-        let resource_fields = resources
-            .iter()
-            .map(|&(name, _res)| format!("_res_{}", make_name_safe(name)));
+        let mut subdirectories: Vec<_> = self.subdirectories.iter().collect();
+        subdirectories.sort_by_key(|&(name, _subdir)| name);
 
-        let resource_types = resources
+        let resource_fields: Vec<_> = resources
             .iter()
-            .map(|&(_name, res)| res.resource_type.rust_type());
+            .map(|&(name, _res)| format!("_res_{}", make_name_safe(name)))
+            .collect();
 
-        let subdir_tokens = self
-            .subdirectories
+        let resource_names: Vec<_> = resources
             .iter()
-            .map(|(name, subdir)| subdir.prefixed_codegen(&format!("{}/{}", prefix, name)));
+            .map(|&(name, _res)| make_name_safe(name))
+            .collect();
+
+        let resource_types: Vec<_> = resources
+            .iter()
+            .map(|&(_name, res)| res.resource_type.rust_type())
+            .collect();
+
+        let resource_constructors: Vec<_> = resources
+            .iter()
+            .map(|&(_name, res)| &res.constructor_code)
+            .collect();
+
+        let subdir_prefixes: Vec<_> = subdirectories
+            .iter()
+            .map(|&(name, _subdir)| format!("{}/{}", prefix, name))
+            .collect();
+
+        let subdir_tokens = subdirectories
+            .iter()
+            .zip(subdir_prefixes.iter())
+            .map(|(&(_name, subdir), prefix)| subdir.prefixed_codegen(prefix));
+
+        let subdir_types: Vec<_> = subdirectories
+            .iter()
+            .zip(subdir_prefixes.iter())
+            .map(|(&(name, _subdir), prefix)| mangle_path(&format!("{}/{}", prefix, name)))
+            .collect();
+
+        let subdir_fields: Vec<_> = subdirectories
+            .iter()
+            .map(|&(name, _subdir)| format!("_subdir_{}", make_name_safe(name)))
+            .collect();
 
         let tokens = quote! {
             pub struct #struct_name {
-                #(pub #resource_fields: ::std::option::Option<#resource_types>,)*
+                #(pub #resource_fields: ::std::lazy::Lazy<#resource_types>,)*
+                #(pub #subdir_fields: #subdir_types,)*
             }
+
+            impl #struct_name {
+                pub fn new() -> Self {
+                    Self {
+                        #(
+                            #resource_fields: ::std::lazy::Lazy::new(|| #resource_constructors),
+                        )*
+                        #(
+                            #subdir_fields: #subdir_types::new(),
+                        )*
+                    }
+                }
+
+                #(
+                    pub fn #resource_names(&self) -> #resource_types {
+                        ::std::ops::Deref::deref(&self.#resource_fields)
+                    }
+                )*
+            }
+
             #(#subdir_tokens)*
         };
         tokens.into()
