@@ -22,6 +22,12 @@ pub trait Runtime {
     fn raise_event(&mut self, event: EventHandle);
     fn wake_event(&self, script: ScriptHandle) -> Option<EventHandle>;
     fn start_script(&mut self, context: GameContext, script: &mut dyn Script);
+    fn run_with_ggez(
+        &mut self,
+        func: Box<dyn FnMut(&mut ggez::Context)>,
+    ) -> Pin<Box<dyn Future<Output = ()>>>;
+    fn update(&mut self, ctx: &mut ggez::Context);
+    fn wait_for_event(&mut self, event: EventHandle) -> Box<dyn Future<Output = ()>>;
 }
 
 pub trait Script {

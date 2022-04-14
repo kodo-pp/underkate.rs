@@ -1,5 +1,6 @@
 mod app;
 mod default_runtime;
+mod dialog;
 mod game_context;
 mod geometry;
 mod graphics;

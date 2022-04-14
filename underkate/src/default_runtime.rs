@@ -1,9 +1,9 @@
 use crate::game_context::GameContext;
-use crate::script::{EventHandle, Runtime, Script, ScriptHandle, ScriptHandleGenerator};
+use crate::script::{EventHandle, Runtime, Script, ScriptHandle, ScriptHandleGenerator, EventHandleGenerator};
 use std::collections::HashMap;
 use std::future::Future;
 use std::pin::Pin;
-use std::task::{Context, RawWaker, RawWakerVTable, Waker};
+use std::task::{Context, RawWaker, RawWakerVTable, Waker, Poll};
 
 #[derive(Debug, Default)]
 struct SubscriberList {
@@ -45,6 +45,8 @@ pub struct DefaultRuntime {
     subscribers: HashMap<EventHandle, SubscriberList>,
     scripts: HashMap<ScriptHandle, ScriptState>,
     script_handle_generator: ScriptHandleGenerator,
+    event_handle_generator: EventHandleGenerator,
+    with_ggez_queue: Vec<Box<dyn FnMut(&mut ggez::Context)>>,
 }
 
 impl DefaultRuntime {
@@ -53,6 +55,8 @@ impl DefaultRuntime {
             subscribers: HashMap::new(),
             scripts: HashMap::new(),
             script_handle_generator: ScriptHandleGenerator::new(),
+            with_ggez_queue: Vec::new(),
+            event_handle_generator: EventHandleGenerator::new(),
         }
     }
 
@@ -73,6 +77,17 @@ impl DefaultRuntime {
             }
             self.scripts.remove(&script);
         }
+    }
+}
+
+struct EventWaitFuture {
+    event: EventHandle,
+}
+
+impl Future for EventWaitFuture {
+    type Output = ();
+    fn poll(self: Pin<&mut Self>, future_ctx: &mut std::task::Context<'_>) -> Poll<()> {
+
     }
 }
 
@@ -99,5 +114,22 @@ impl Runtime for DefaultRuntime {
         let state = ScriptState::from_future(future);
         self.scripts.insert(handle, state);
         self.resume_script(handle, None);
+    }
+
+    fn run_with_ggez(
+        &mut self,
+        func: Box<dyn FnMut(&mut ggez::Context)>,
+    ) -> Pin<Box<dyn Future<Output = ()>>> {
+        self.with_ggez_queue.push(func);
+        Box::pin(async {
+            
+        })
+    }
+
+    fn update(&mut self, ctx: &mut ggez::Context) {
+        let queue = std::mem::take(&mut self.with_ggez_queue);
+        for mut func in queue {
+            func(ctx);
+        }
     }
 }

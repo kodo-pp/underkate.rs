@@ -4,7 +4,6 @@ use crate::overworld::room::{CreationParams, Room};
 use crate::overworld::screen::OverworldScreen;
 use crate::resources::{self, ResourceStorageCloneExt};
 use crate::screen::Screen;
-use crate::script::{EventHandleGenerator, ScriptHandleGenerator};
 use crate::ui_event::UiEvent;
 use ggez::conf::WindowSetup;
 use ggez::event::{self, EventHandler};
@@ -17,16 +16,12 @@ use std::sync::{Arc, Mutex};
 
 struct Underkate {
     game_context: GameContext,
-    event_handle_generator: EventHandleGenerator,
-    script_handle_generator: ScriptHandleGenerator,
 }
 
 impl Underkate {
     pub fn new(ctx: &mut Context) -> Self {
         let global_resource_storage = Arc::new(resources::make_global_storage(ctx));
         let runtime = Arc::new(Mutex::new(RefCell::new(DefaultRuntime::new())));
-        let event_handle_generator = EventHandleGenerator::new();
-        let script_handle_generator = ScriptHandleGenerator::new();
         let overworld_screen = Arc::new(Mutex::new(RefCell::new(OverworldScreen::new())));
 
         let game_context = GameContext {
@@ -48,11 +43,15 @@ impl Underkate {
             .unwrap()
             .borrow_mut()
             .load_room(game_context.as_context_ref(), starting_room);
+        game_context
+            .runtime
+            .lock()
+            .unwrap()
+            .borrow_mut()
+            .update(ctx);
 
         Underkate {
             game_context,
-            event_handle_generator,
-            script_handle_generator,
         }
     }
 }
