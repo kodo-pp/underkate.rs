@@ -86,8 +86,8 @@ struct EventWaitFuture {
 
 impl Future for EventWaitFuture {
     type Output = ();
-    fn poll(self: Pin<&mut Self>, future_ctx: &mut std::task::Context<'_>) -> Poll<()> {
-
+    fn poll(self: Pin<&mut Self>, _future_ctx: &mut std::task::Context<'_>) -> Poll<()> {
+        self.event
     }
 }
 

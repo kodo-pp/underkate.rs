@@ -20,7 +20,9 @@ impl Script for Dialog {
         Box::pin(async {
             let runtime_lock = context.runtime.lock().unwrap();
             let runtime_ref = runtime_lock.borrow();
-            runtime_ref.run_with_ggez()
+            runtime_ref.run_with_ggez(Box::new(|ggez| {
+                
+            }));
         })
     }
 }
